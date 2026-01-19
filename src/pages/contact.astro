@@ -1,0 +1,151 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Button from "@/components/ui/Button.astro";
+import Card from "@/components/ui/Card.astro";
+import FormContainer from "@/components/ui/FormContainer.astro";
+import FormField from "@/components/ui/FormField.astro";
+import { footerConfig } from "@/config/site.ts";
+---
+
+<Layout
+  title={footerConfig.contactTitle || "Contact us"}
+  description={footerConfig.contactTagline ||
+    "We'd love to hear how we can help transform your government services."}
+  footer={{ showContactSection: false }}
+>
+  <section class="section-padding bg-background">
+    <div class="container-content">
+      <h1 class="text-heading-1 mb-4">{footerConfig.contactTitle}</h1>
+      <div class="title-accent"></div>
+      <p class="text-body-large mb-8">{footerConfig.contactTagline}</p>
+
+      <Card class="card-padded contact-form-card">
+        <h2 class="text-heading-2 mb-6">Send us a message</h2>
+        <FormContainer action="/api/contact" id="contact-form">
+          <FormField label="Name" id="name" name="name" type="text" required />
+          <FormField
+            label="Email"
+            id="email"
+            name="email"
+            type="email"
+            required
+          />
+          <FormField
+            label="Message"
+            id="message"
+            name="message"
+            type="textarea"
+            rows={6}
+            required
+          />
+          <div class="form-actions">
+            <Button type="submit" maxWidth="3xs" id="submit-button">
+              Send message
+            </Button>
+            <div id="form-status" class="form-status" aria-live="polite"></div>
+          </div>
+        </FormContainer>
+      </Card>
+    </div>
+  </section>
+</Layout>
+
+<style is:global>
+  /* Mobile-first styles */
+  .contact-form-card {
+    padding: var(--spacing-lg);
+  }
+
+  .contact-form-card .form-actions button {
+    width: 100%;
+    max-width: none;
+  }
+
+  .form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  /* Desktop overrides */
+  @media (min-width: 768px) {
+    .contact-form-card {
+      padding: var(--spacing-xl);
+    }
+
+    .contact-form-card .form-actions button {
+      width: auto;
+    }
+
+    .form-actions {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  .form-status {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .form-status.success {
+    color: var(--success, #22c55e);
+  }
+
+  .form-status.error {
+    color: var(--destructive, #ef4444);
+  }
+
+  .form-status.loading {
+    color: var(--secondary-mid);
+  }
+</style>
+
+<script>
+  const form = document.getElementById("contact-form") as HTMLFormElement;
+  const submitButton = document.getElementById(
+    "submit-button"
+  ) as HTMLButtonElement;
+  const statusElement = document.getElementById(
+    "form-status"
+  ) as HTMLDivElement;
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Update UI to show loading state
+    submitButton.disabled = true;
+    const originalText = submitButton.textContent;
+    submitButton.textContent = "Sending...";
+    statusElement.textContent = "";
+    statusElement.className = "form-status loading";
+
+    try {
+      const formData = new FormData(form);
+
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        statusElement.textContent = "✓ Message sent successfully!";
+        statusElement.className = "form-status success";
+        form.reset();
+      } else {
+        statusElement.textContent =
+          result.error || "Failed to send message. Please try again.";
+        statusElement.className = "form-status error";
+      }
+    } catch {
+      statusElement.textContent =
+        "Network error. Please check your connection and try again.";
+      statusElement.className = "form-status error";
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = originalText;
+    }
+  });
+</script>

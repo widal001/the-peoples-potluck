@@ -1,0 +1,99 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  entry: CollectionEntry<"case-studies">;
+  basePath: string;
+}
+
+const { entry, basePath } = Astro.props;
+const slug = entry.slug;
+const href = `${basePath}/${slug}`;
+---
+
+<a
+  href={href}
+  class="post-link"
+  aria-label={`Read case study: ${entry.data.title}`}
+>
+  <article class="card post-card">
+    <h3 class="text-heading-3 post-title">
+      {entry.data.title}
+    </h3>
+    <p class="text-body-small post-meta">
+      {entry.data.publishDate}
+      {"client" in entry.data && entry.data.client && ` • ${entry.data.client}`}
+      {
+        "author" in entry.data &&
+          entry.data.author &&
+          !("client" in entry.data && entry.data.client) &&
+          ` • ${entry.data.author}`
+      }
+    </p>
+    <p class="text-body post-description">
+      {entry.data.description}
+    </p>
+    {
+      "industry" in entry.data && entry.data.industry && (
+        <p class="text-body-small post-industry">
+          Industry: {entry.data.industry}
+        </p>
+      )
+    }
+  </article>
+</a>
+
+<style>
+  .post-link {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    transition:
+      transform var(--transition-normal) ease,
+      border-color var(--transition-normal) ease,
+      box-shadow var(--transition-normal) ease;
+  }
+
+  .post-link:hover .post-card,
+  .post-link:focus .post-card {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .post-link:focus {
+    outline: none;
+  }
+
+  .post-link:focus .post-card {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .post-title {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .post-meta {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .post-description {
+    margin-bottom: var(--spacing-md);
+    flex-grow: 1;
+  }
+
+  .post-industry {
+    margin-bottom: var(--spacing-sm);
+  }
+</style>

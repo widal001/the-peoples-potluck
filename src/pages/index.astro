@@ -1,0 +1,119 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Banner from "@/components/sections/Banner.astro";
+import PotluckScrollSection from "@/components/potluck/PotluckScrollSection.astro";
+import { siteConfig } from "@/config/site";
+
+// Fetch all collections
+const sideDishes = await getCollection("side-dishes");
+const desserts = await getCollection("desserts");
+const platesCutlery = await getCollection("plates-cutlery");
+const drinks = await getCollection("drinks");
+
+// Sort each by addedDate, newest first
+const sortByDate = <T extends { data: { addedDate?: string } }>(items: T[]) =>
+  items.sort((a, b) => {
+    const dateA = a.data.addedDate ? new Date(a.data.addedDate).getTime() : 0;
+    const dateB = b.data.addedDate ? new Date(b.data.addedDate).getTime() : 0;
+    return dateB - dateA;
+  });
+
+const sortedSideDishes = sortByDate(sideDishes);
+const sortedDesserts = sortByDate(desserts);
+const sortedPlatesCutlery = sortByDate(platesCutlery);
+const sortedDrinks = sortByDate(drinks);
+
+const bannerInfo = {
+  tagline: "Find your place at the table",
+  description:
+    "A community resource potluck for solidarity with immigrants in Baltimore. Browse our collection of resources, historical context, and ideas—or have a plate made for you with a random selection from each category.",
+  ctaText: "Make me a plate",
+  ctaHref: "/plate/",
+};
+
+// Category descriptions
+const categoryInfo = {
+  sideDishes: {
+    title: "Side Dishes",
+    description:
+      "Existing groups, efforts, and projects in Baltimore related to solidarity with immigrants.",
+    href: "/side-dishes/",
+  },
+  desserts: {
+    title: "Desserts",
+    description:
+      "Sweet things giving hope - efforts, projects, and experiments keeping communities safe.",
+    href: "/desserts/",
+  },
+  platesCutlery: {
+    title: "Plates & Cutlery",
+    description:
+      "Local historical context of what Baltimore is already carrying.",
+    href: "/plates-cutlery/",
+  },
+  drinks: {
+    title: "Drinks",
+    description:
+      "What Baltimore is thirsty for in organizing, mutual aid, and solidarity.",
+    href: "/drinks/",
+  },
+};
+---
+
+<Layout title={siteConfig.companyName} description={bannerInfo.tagline}>
+  <Banner
+    tagline={bannerInfo.tagline}
+    description={bannerInfo.description}
+    ctaText={bannerInfo.ctaText}
+    ctaHref={bannerInfo.ctaHref}
+  />
+
+  <!-- Side Dishes Section -->
+  <PotluckScrollSection
+    title={categoryInfo.sideDishes.title}
+    description={categoryInfo.sideDishes.description}
+    items={sortedSideDishes}
+    category="side-dishes"
+    viewAllHref={categoryInfo.sideDishes.href}
+    maxItems={5}
+  />
+
+  <!-- Desserts Section -->
+  <PotluckScrollSection
+    title={categoryInfo.desserts.title}
+    description={categoryInfo.desserts.description}
+    items={sortedDesserts}
+    category="desserts"
+    viewAllHref={categoryInfo.desserts.href}
+    maxItems={5}
+  />
+
+  <!-- Plates & Cutlery Section -->
+  <PotluckScrollSection
+    title={categoryInfo.platesCutlery.title}
+    description={categoryInfo.platesCutlery.description}
+    items={sortedPlatesCutlery}
+    category="plates-cutlery"
+    viewAllHref={categoryInfo.platesCutlery.href}
+    maxItems={5}
+  />
+
+  <!-- Drinks Section -->
+  <PotluckScrollSection
+    title={categoryInfo.drinks.title}
+    description={categoryInfo.drinks.description}
+    items={sortedDrinks}
+    category="drinks"
+    viewAllHref={categoryInfo.drinks.href}
+    maxItems={5}
+  />
+
+  <div class="footer-spacer"></div>
+</Layout>
+
+<style>
+  .footer-spacer {
+    height: var(--spacing-xl);
+  }
+</style>

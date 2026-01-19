@@ -1,0 +1,27 @@
+---
+interface Props {
+  action?: string;
+  id?: string;
+  method?: string;
+  class?: string;
+}
+
+const { action, id, method = "post", class: className = "" } = Astro.props;
+---
+
+<form
+  action={action}
+  id={id}
+  method={method}
+  class={`form-container ${className}`}
+>
+  <slot />
+</form>
+
+<style is:global>
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
+</style>

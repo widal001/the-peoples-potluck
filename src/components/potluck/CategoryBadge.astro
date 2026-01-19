@@ -1,0 +1,57 @@
+---
+interface Props {
+  category: "side-dishes" | "desserts" | "plates-cutlery" | "drinks";
+  href?: string;
+}
+
+const { category, href } = Astro.props;
+
+const categoryLabels: Record<string, string> = {
+  "side-dishes": "side dish",
+  desserts: "dessert",
+  "plates-cutlery": "plates & cutlery",
+  drinks: "drink",
+};
+
+const label = categoryLabels[category] || category;
+---
+
+{
+  href ? (
+    <a href={href} class="category-badge category-badge--link">
+      {label}
+    </a>
+  ) : (
+    <span class="category-badge">{label}</span>
+  )
+}
+
+<style>
+  .category-badge {
+    display: inline-block;
+    background-color: var(--accent-lightest);
+    color: var(--accent-dark);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-transform: lowercase;
+  }
+
+  .category-badge--link {
+    text-decoration: none;
+    transition:
+      background-color var(--transition-normal),
+      color var(--transition-normal);
+  }
+
+  .category-badge--link:hover {
+    background-color: var(--accent-lighter);
+    color: var(--accent-darkest);
+  }
+
+  .category-badge--link:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+</style>

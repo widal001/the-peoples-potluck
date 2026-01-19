@@ -1,0 +1,449 @@
+---
+interface NavItem {
+  label: string;
+  href: string;
+}
+
+interface NavDropdown {
+  label: string;
+  items: NavItem[];
+}
+
+interface Props {
+  items: (NavItem | NavDropdown)[];
+}
+
+const { items } = Astro.props;
+---
+
+<!-- Mobile menu button -->
+<div class="md:hidden">
+  <button
+    id="mobile-menu-button"
+    class="mobile-menu-button"
+    aria-label="Toggle navigation menu"
+    aria-expanded="false"
+    aria-controls="mobile-menu-sheet"
+  >
+    <svg
+      class="h-6 w-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+    <span class="sr-only">Open menu</span>
+  </button>
+</div>
+
+<!-- Mobile Navigation Sheet -->
+<div
+  id="mobile-menu-sheet"
+  class="fixed inset-0 z-50 md:hidden pointer-events-none"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Mobile navigation"
+  aria-hidden="true"
+  inert
+>
+  <!-- Backdrop -->
+  <div
+    id="mobile-menu-backdrop"
+    class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 opacity-0 pointer-events-none"
+    aria-hidden="true"
+  >
+  </div>
+
+  <!-- Sheet Panel -->
+  <div id="mobile-menu-panel" class="mobile-menu-panel">
+    <!-- Sheet Header -->
+    <div class="mobile-menu-header">
+      <h2 class="mobile-menu-title">Menu</h2>
+      <button
+        id="mobile-menu-close"
+        class="mobile-menu-close"
+        aria-label="Close navigation menu"
+      >
+        <svg
+          class="h-6 w-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        <span class="sr-only">Close menu</span>
+      </button>
+    </div>
+
+    <!-- Sheet Content -->
+    <nav class="mobile-menu-content" role="menu" aria-label="Mobile navigation">
+      {
+        items.map((item: NavItem | NavDropdown, index: number) => {
+          if ("items" in item) {
+            const mobileDropdownId = `mobile-dropdown-${index}`;
+            const mobileMenuId = `mobile-menu-${index}`;
+            return (
+              <div class="mobile-menu-dropdown-wrapper" role="none">
+                <button
+                  id={mobileDropdownId}
+                  class="mobile-menu-dropdown-toggle"
+                  aria-expanded="false"
+                  aria-controls={mobileMenuId}
+                  role="menuitem"
+                  aria-haspopup="true"
+                >
+                  {item.label}
+                  <svg
+                    class="mobile-menu-dropdown-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  id={mobileMenuId}
+                  class="mobile-menu-dropdown-content hidden"
+                  role="menu"
+                  aria-labelledby={mobileDropdownId}
+                >
+                  {item.items.map((subItem: NavItem) => (
+                    <a
+                      href={subItem.href}
+                      class="mobile-menu-link mobile-menu-link-sub"
+                      role="menuitem"
+                    >
+                      {subItem.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            );
+          } else {
+            return (
+              <a href={item.href} class="mobile-menu-link" role="menuitem">
+                {item.label}
+              </a>
+            );
+          }
+        })
+      }
+    </nav>
+  </div>
+</div>
+
+<script>
+  // Mobile menu sheet toggle
+  document.addEventListener("DOMContentLoaded", () => {
+    const mobileMenuButton = document.getElementById("mobile-menu-button");
+    const mobileMenuSheet = document.getElementById("mobile-menu-sheet");
+    const mobileMenuBackdrop = document.getElementById("mobile-menu-backdrop");
+    const mobileMenuPanel = document.getElementById("mobile-menu-panel");
+    const mobileMenuClose = document.getElementById("mobile-menu-close");
+
+    if (
+      !mobileMenuButton ||
+      !mobileMenuSheet ||
+      !mobileMenuBackdrop ||
+      !mobileMenuPanel
+    ) {
+      console.error("Mobile menu elements not found");
+      return;
+    }
+
+    const openSheet = () => {
+      mobileMenuSheet.setAttribute("aria-hidden", "false");
+      mobileMenuSheet.removeAttribute("inert");
+      mobileMenuSheet.classList.remove("pointer-events-none");
+      mobileMenuButton.setAttribute("aria-expanded", "true");
+      mobileMenuButton.setAttribute("aria-label", "Close navigation menu");
+      mobileMenuBackdrop.classList.remove("opacity-0", "pointer-events-none");
+      mobileMenuBackdrop.classList.add("opacity-100", "pointer-events-auto");
+      mobileMenuPanel.classList.add("mobile-menu-panel-open");
+      document.body.style.overflow = "hidden";
+      // Focus the close button
+      setTimeout(() => {
+        mobileMenuClose?.focus();
+      }, 100);
+    };
+
+    const closeSheet = () => {
+      mobileMenuSheet.setAttribute("aria-hidden", "true");
+      mobileMenuSheet.setAttribute("inert", "");
+      mobileMenuSheet.classList.add("pointer-events-none");
+      mobileMenuButton.setAttribute("aria-expanded", "false");
+      mobileMenuButton.setAttribute("aria-label", "Toggle navigation menu");
+      mobileMenuBackdrop.classList.remove("opacity-100", "pointer-events-auto");
+      mobileMenuBackdrop.classList.add("opacity-0", "pointer-events-none");
+      mobileMenuPanel.classList.remove("mobile-menu-panel-open");
+      document.body.style.overflow = "";
+      // Return focus to menu button
+      mobileMenuButton?.focus();
+    };
+
+    // Open sheet
+    if (mobileMenuButton && mobileMenuSheet) {
+      mobileMenuButton.addEventListener("click", openSheet);
+
+      // Close sheet on Escape key
+      mobileMenuButton.addEventListener("keydown", (e) => {
+        if (
+          e.key === "Escape" &&
+          mobileMenuSheet.getAttribute("aria-hidden") === "false"
+        ) {
+          closeSheet();
+        }
+      });
+    }
+
+    // Close button
+    if (mobileMenuClose) {
+      mobileMenuClose.addEventListener("click", closeSheet);
+      mobileMenuClose.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSheet();
+        }
+      });
+    }
+
+    // Close on backdrop click
+    if (mobileMenuBackdrop) {
+      mobileMenuBackdrop.addEventListener("click", closeSheet);
+    }
+
+    // Close sheet when clicking outside
+    mobileMenuSheet.addEventListener("click", (e) => {
+      if (e.target === mobileMenuSheet || e.target === mobileMenuBackdrop) {
+        closeSheet();
+      }
+    });
+
+    // Mobile dropdown toggles
+    document
+      .querySelectorAll(".mobile-menu-dropdown-toggle")
+      .forEach((button) => {
+        button.addEventListener("click", () => {
+          const content = button.nextElementSibling;
+          const icon = button.querySelector("svg");
+          const isExpanded = button.getAttribute("aria-expanded") === "true";
+
+          if (content) {
+            content.classList.toggle("hidden");
+            button.setAttribute("aria-expanded", String(!isExpanded));
+            if (icon) {
+              icon.classList.toggle("rotate-180");
+            }
+          }
+        });
+
+        // Keyboard support for mobile dropdowns
+        button.addEventListener("keydown", (e) => {
+          const content = button.nextElementSibling;
+          const isExpanded = button.getAttribute("aria-expanded") === "true";
+          const keyEvent = e as KeyboardEvent;
+
+          switch (keyEvent.key) {
+            case "Enter":
+            case " ": {
+              e.preventDefault();
+              content?.classList.toggle("hidden");
+              button.setAttribute("aria-expanded", String(!isExpanded));
+              const icon = button.querySelector("svg");
+              if (icon) {
+                icon.classList.toggle("rotate-180");
+              }
+              break;
+            }
+            case "Escape":
+              if (isExpanded && content) {
+                e.preventDefault();
+                content.classList.add("hidden");
+                button.setAttribute("aria-expanded", "false");
+                const icon = button.querySelector("svg");
+                if (icon) {
+                  icon.classList.remove("rotate-180");
+                }
+              } else {
+                // If dropdown is closed, close the sheet
+                closeSheet();
+              }
+              break;
+          }
+        });
+      });
+
+    // Close sheet when navigating to a link
+    document.querySelectorAll("#mobile-menu-sheet a").forEach((link) => {
+      link.addEventListener("click", () => {
+        closeSheet();
+      });
+    });
+  });
+</script>
+
+<style is:global>
+  /* Mobile menu button */
+  .mobile-menu-button {
+    color: var(--text-color-default);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    transition: opacity var(--transition-normal);
+  }
+
+  .mobile-menu-button:hover {
+    opacity: 0.8;
+  }
+
+  .mobile-menu-button:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Mobile menu panel */
+  .mobile-menu-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    max-width: 24rem;
+    background-color: var(--background-default);
+    color: var(--text-color-default);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(100%);
+    transition: transform 300ms ease-in-out;
+    overflow-y: auto;
+    pointer-events: auto;
+  }
+
+  .mobile-menu-panel-open {
+    transform: translateX(0);
+  }
+
+  /* Mobile menu content */
+  .mobile-menu-content {
+    padding: var(--spacing-md);
+  }
+
+  /* Mobile menu header */
+  .mobile-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    border-bottom: var(--border-width) solid var(--border-default);
+  }
+
+  .mobile-menu-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-default);
+    margin: 0;
+  }
+
+  .mobile-menu-close {
+    color: var(--text-color-default);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    transition: opacity var(--transition-normal);
+  }
+
+  .mobile-menu-close:hover {
+    opacity: 0.8;
+  }
+
+  .mobile-menu-close:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Mobile menu links */
+  .mobile-menu-link {
+    display: block;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    color: var(--text-color-default);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+  }
+
+  .mobile-menu-link:hover {
+    opacity: 0.8;
+    background-color: var(--secondary-lightest);
+  }
+
+  .mobile-menu-link:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .mobile-menu-link-sub {
+    color: var(--text-color-lighter);
+  }
+
+  .mobile-menu-link-sub:hover {
+    color: var(--text-color-default);
+  }
+
+  /* Mobile menu dropdown toggle */
+  .mobile-menu-dropdown-toggle {
+    color: var(--text-color-default);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+  }
+
+  .mobile-menu-dropdown-toggle:hover {
+    opacity: 0.8;
+  }
+
+  .mobile-menu-dropdown-toggle:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Mobile menu dropdown wrapper */
+  .mobile-menu-dropdown-wrapper {
+    margin-top: var(--spacing-sm);
+  }
+
+  /* Mobile menu dropdown icon */
+  .mobile-menu-dropdown-icon {
+    height: 1rem;
+    width: 1rem;
+    transition: transform var(--transition-normal);
+  }
+
+  /* Mobile menu dropdown content */
+  .mobile-menu-dropdown-content {
+    padding-left: var(--spacing-md);
+    margin-top: var(--spacing-xs);
+  }
+</style>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 575 575">
+  <!-- Generic abstract mark -->
+  <circle cx="287.5" cy="287.5" r="200" fill="#1a1a1a" opacity="0.8"/>
+  <circle cx="200" cy="200" r="120" fill="#1a1a1a" opacity="0.6"/>
+  <circle cx="375" cy="375" r="100" fill="#1a1a1a" opacity="0.6"/>
+</svg>

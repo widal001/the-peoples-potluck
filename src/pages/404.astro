@@ -1,0 +1,47 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Section from "@/components/ui/Section.astro";
+import LinkButton from "@/components/ui/LinkButton.astro";
+---
+
+<Layout
+  title="Page Not Found"
+  description="The page you're looking for doesn't exist."
+>
+  <Section class="not-found">
+    <div class="not-found-content">
+      <h1 class="not-found-title">404</h1>
+      <p class="not-found-message">
+        Sorry, we couldn't find the page you're looking for.
+      </p>
+      <LinkButton href="/" text="Go back home" />
+    </div>
+  </Section>
+</Layout>
+
+<style>
+  .not-found-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    text-align: center;
+  }
+
+  .not-found-title {
+    font-size: clamp(4rem, 15vw, 8rem);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color-default);
+    line-height: 1;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .not-found-message {
+    font-size: var(--font-size-xl);
+    color: var(--text-color-default);
+    opacity: 0.75;
+    margin-bottom: var(--spacing-xl);
+    max-width: 30rem;
+  }
+</style>

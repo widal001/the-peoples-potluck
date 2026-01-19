@@ -1,0 +1,6 @@
+# pnpm
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
+# Wrangler
+wrangler.jsonc

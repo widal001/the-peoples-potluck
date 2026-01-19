@@ -1,0 +1,377 @@
+@import "tailwindcss";
+
+/* =======================================================
+   BASE RESETS
+   =======================================================
+   Foundation styles for consistent rendering across browsers
+   ======================================================= */
+
+body {
+  background-color: var(--background-default);
+  color: var(--text-color-default);
+  font-family: var(--font-family-base);
+  transition:
+    background-color var(--transition-normal),
+    color var(--transition-normal);
+}
+
+/* Skip to main content link - hidden offscreen, visible on focus */
+.skip-link {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  z-index: 999;
+}
+
+.skip-link:focus {
+  position: fixed;
+  top: var(--spacing-md);
+  left: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--accent);
+  color: var(--white);
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-md);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-heading);
+}
+
+/* =======================================================
+   DESIGN TOKENS
+   =======================================================
+   Centralized design system variables for theming and consistency
+   ======================================================= */
+
+:root {
+  /* Primary (Spruce) */
+  --primary-darkest: #3f5045;
+  --primary-dark: #46594dff;
+  --primary: #4d6255ff;
+  --primary-mid: #5a6f5fff;
+  --primary-light: #a1b4a3ff;
+  --primary-lighter: #cfded4ff;
+  --primary-lightest: #f3f7f4ff;
+
+  /* Secondary (Teal) */
+  --secondary-darkest: #2a4950ff;
+  --secondary-dark: #31565eff;
+  --secondary: #466f77ff;
+  --secondary-mid: #5b888fff;
+  --secondary-light: #a8c5c9ff;
+  --secondary-lighter: #d5e3e5ff;
+  --secondary-lightest: #f3f7f7ff;
+
+  /* Accent (Plum) */
+  --accent-darkest: #562527ff;
+  --accent-dark: #6b2e32ff;
+  --accent: #803d41ff;
+  --accent-mid: #954c50ff;
+  --accent-light: #cda7a7ff;
+  --accent-lighter: #e4cccbff;
+  --accent-lightest: #faf1eeff;
+
+  /* Base colors */
+  --white: #ffffff;
+
+  /* Semantic defaults */
+  --border-default: var(--primary-lighter);
+  --background-default: var(--white);
+  --text-color-default: var(--primary-darkest);
+  --text-color-lighter: var(--primary-dark);
+
+  /* Destructive color */
+  --destructive: #ef4444;
+  --destructive-foreground: var(--white);
+
+  /* Spacing scale */
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  --spacing-4xl: 6rem;
+  --spacing-lg: 1.5rem;
+  --spacing-md: 1rem;
+  --spacing-sm: 0.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xs: 0.25rem;
+
+  /* Border radius scale */
+  --radius: 0.5rem;
+  --radius-2xl: 1rem;
+  --radius-lg: 0.5rem;
+  --radius-md: 0.375rem;
+  --radius-sm: 0.25rem;
+  --radius-xl: 0.75rem;
+
+  /* Border width */
+  --border-width: 1px;
+  --border-width-thick: 1px;
+
+  /* Shadows */
+  --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+
+  /* Transitions */
+  --transition-fast: 150ms;
+  --transition-normal: 250ms;
+  --transition-slow: 350ms;
+
+  /* Typography */
+  --font-family-base:
+    "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-heading:
+    "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Layout */
+  --container-max-width: 1120px;
+  --section-padding-x: 1.5rem;
+  --section-padding-y: 5rem;
+}
+
+/* =======================================================
+   TAILWIND THEME MAPPING
+   =======================================================
+   Map design tokens to Tailwind utilities via @theme
+   ======================================================= */
+
+@theme inline {
+  /* Primary colors (Spruce) */
+  --color-primary: var(--primary);
+  --color-primary-mid: var(--primary-mid);
+  --color-primary-light: var(--primary-light);
+  --color-primary-lighter: var(--primary-lighter);
+  --color-primary-lightest: var(--primary-lightest);
+
+  /* Secondary colors (Teal) */
+  --color-secondary: var(--secondary);
+  --color-secondary-mid: var(--secondary-mid);
+  --color-secondary-light: var(--secondary-light);
+  --color-secondary-lighter: var(--secondary-lighter);
+  --color-secondary-lightest: var(--secondary-lightest);
+
+  /* Accent colors (Plum) */
+  --color-accent: var(--accent);
+  --color-accent-mid: var(--accent-mid);
+  --color-accent-light: var(--accent-light);
+  --color-accent-lighter: var(--accent-lighter);
+  --color-accent-lightest: var(--accent-lightest);
+
+  /* Destructive color */
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* Semantic defaults */
+  --color-border-default: var(--border-default);
+  --color-background-default: var(--background-default);
+  --color-text-default: var(--text-color-default);
+
+  /* Primary and secondary */
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+}
+
+/* =======================================================
+   TYPOGRAPHY
+   =======================================================
+   Semantic typography scale for consistent text styling
+   ======================================================= */
+
+.text-body {
+  color: var(--text-color-default);
+  font-size: var(--font-size-md);
+  opacity: 0.8;
+}
+
+.text-body-large {
+  color: var(--text-color-default);
+  font-size: var(--font-size-xl);
+  opacity: 0.9;
+}
+
+.text-body-small {
+  color: var(--secondary-mid);
+  font-size: var(--font-size-sm);
+}
+
+.text-heading-1 {
+  color: var(--text-color-default);
+  font-size: clamp(var(--font-size-4xl), 5vw, var(--font-size-5xl));
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+}
+
+.text-heading-2 {
+  color: var(--text-color-default);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.text-heading-3 {
+  color: var(--text-color-default);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.title-accent {
+  background-color: var(--accent);
+  height: 5px;
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  width: var(--spacing-4xl);
+}
+
+/* =======================================================
+   LAYOUT PRIMITIVES
+   =======================================================
+   Reusable layout patterns for consistent structure
+   ======================================================= */
+
+.container-content {
+  margin-inline: auto;
+  max-width: var(--container-max-width);
+}
+
+.section-padding {
+  padding-block: var(--section-padding-y);
+  padding-inline: var(--section-padding-x);
+}
+
+/* =======================================================
+   SHARED COMPONENT CLASSES
+   =======================================================
+   Global utility classes used across multiple components
+   ======================================================= */
+
+/* Button - used in Button.astro, LinkButton.astro, Post.astro, contact.astro */
+.button-primary {
+  background-color: var(--accent);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--white);
+  cursor: pointer;
+  display: inline-block;
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-md) var(--spacing-2xl);
+  text-decoration: none;
+  transition:
+    all var(--transition-normal) ease,
+    outline 0s,
+    outline-offset 0s;
+}
+
+/* Button max-width variants - using Tailwind's built-in theme */
+.button-primary[max-width="3xs"] {
+  @apply max-w-3xs;
+}
+
+.button-primary[max-width="2xs"] {
+  @apply max-w-2xs;
+}
+
+.button-primary[max-width="xs"] {
+  @apply max-w-xs;
+}
+
+.button-primary[max-width="sm"] {
+  @apply max-w-sm;
+}
+
+.button-primary[max-width="md"] {
+  @apply max-w-md;
+}
+
+.button-primary[max-width="lg"] {
+  @apply max-w-lg;
+}
+
+.button-primary[max-width="xl"] {
+  @apply max-w-xl;
+}
+
+.button-primary:hover {
+  background-color: var(--accent-mid);
+}
+
+.button-primary:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Button focus - common focus ring style for icon buttons and text buttons */
+.button-focus {
+  border-radius: var(--radius-md);
+}
+
+.button-focus:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Card - used in Card.astro, Post.astro, PostCollection.astro, contact.astro */
+.card,
+.card-padded {
+  background-color: var(--background-default);
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  color: var(--text-color-default);
+}
+
+.card {
+  padding: var(--spacing-lg);
+}
+
+.card-padded {
+  padding: var(--spacing-xl);
+}
+
+/* =======================================================
+   SEMANTIC UTILITY CLASSES
+   =======================================================
+   Semantic classes for common use cases
+   ======================================================= */
+
+.bg-default {
+  background-color: var(--background-default);
+}
+
+.text-default {
+  color: var(--text-color-default);
+}
+
+.text-default-lighter {
+  color: var(--text-color-lighter);
+}
+
+.border-default {
+  border-color: var(--border-default);
+}
+
+.hover-bg-secondary-light {
+  transition: background-color var(--transition-normal);
+}
+
+.hover-bg-secondary-light:hover {
+  background-color: var(--secondary-lightest);
+}

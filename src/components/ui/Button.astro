@@ -1,0 +1,19 @@
+---
+interface Props {
+  class?: string;
+  id?: string;
+  type?: "button" | "submit" | "reset";
+  maxWidth?: "3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
+}
+
+const { class: className = "", id, type = "button", maxWidth } = Astro.props;
+---
+
+<button
+  type={type}
+  class={`button-primary ${className}`}
+  max-width={maxWidth}
+  id={id}
+>
+  <slot />
+</button>

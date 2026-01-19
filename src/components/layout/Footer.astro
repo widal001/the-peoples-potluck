@@ -1,0 +1,262 @@
+---
+import { Image } from "astro:assets";
+import logoWhite from "@/svg/logo_main_white.svg";
+
+interface FooterLink {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  companyName?: string;
+  copyright?: string;
+  links?: FooterLink[];
+  showContactSection?: boolean;
+  contactTitle?: string;
+  contactTagline?: string;
+  contactButtonHref?: string;
+}
+
+const {
+  companyName = "Company Name",
+  copyright,
+  links = [],
+  showContactSection = true,
+  contactTitle = "Let's chat",
+  contactTagline = "Want to work together or learn more about us?",
+  contactButtonHref = "/contact/",
+} = Astro.props;
+
+const copyrightText =
+  copyright || `© <span data-current-year></span> ${companyName}`;
+---
+
+<footer>
+  {
+    showContactSection && (
+      <div class="footer-contact section-padding bg-secondary">
+        <div class="container-content">
+          <div class="footer-contact-layout">
+            <div class="footer-contact-text">
+              <h2 class="text-heading-1 mb-6">
+                <a href={contactButtonHref} class="ghost-link-heading">
+                  {contactTitle}{" "}
+                  <span class="ghost-link-arrow" aria-hidden="true">
+                    →
+                  </span>
+                </a>
+              </h2>
+              <p class="text-body-large">{contactTagline}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  <div class="footer-bar">
+    <div class="container-content">
+      <div class="footer-bar-content">
+        <a href="/" class="footer-bar-logo" aria-label="Home">
+          <Image src={logoWhite} alt="" width={142} height={32} />
+        </a>
+        {
+          links.length > 0 && (
+            <nav aria-label="Footer navigation">
+              <ul class="footer-links">
+                {links.map((link: FooterLink, index: number) => (
+                  <>
+                    <li>
+                      <a href={link.href} class="footer-link">
+                        {link.label}
+                      </a>
+                    </li>
+                    {index < links.length - 1 && (
+                      <li class="footer-sep" aria-hidden="true">
+                        |
+                      </li>
+                    )}
+                  </>
+                ))}
+              </ul>
+            </nav>
+          )
+        }
+        <p class="text-body-small footer-copyright" set:html={copyrightText} />
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const yearSpan = document.querySelector("[data-current-year]");
+  if (yearSpan) {
+    yearSpan.textContent = new Date().getFullYear().toString();
+  }
+</script>
+
+<style is:global>
+  /* Contact section layout */
+  .footer-contact {
+    padding-inline: var(--section-padding-x);
+    background-color: var(--primary-lighter);
+  }
+
+  .footer-contact-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2xl);
+  }
+
+  @media (min-width: 768px) {
+    .footer-contact {
+      padding-inline: var(--spacing-3xl);
+    }
+
+    .footer-contact-layout {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .footer-contact {
+      padding-inline: var(--section-padding-x);
+    }
+  }
+
+  .footer-contact-text {
+    flex: 1;
+    max-width: 36rem;
+  }
+
+  .ghost-link-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--primary-darkest);
+    text-decoration: none;
+    transition:
+      gap var(--transition-normal),
+      color var(--transition-normal);
+  }
+
+  .ghost-link-heading:hover {
+    color: var(--primary-darker);
+    gap: var(--spacing-lg);
+  }
+
+  .ghost-link-heading:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+
+  .ghost-link-arrow {
+    font-weight: var(--font-weight-medium);
+    transition: transform var(--transition-normal);
+  }
+
+  .ghost-link-heading:hover .ghost-link-arrow {
+    transform: translateX(0.125rem);
+  }
+
+  /* Bottom bar */
+  .footer-bar {
+    background-color: var(--primary);
+    padding: var(--spacing-lg) var(--section-padding-x);
+  }
+
+  .footer-bar-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+
+  @media (min-width: 768px) {
+    .footer-bar-content {
+      flex-direction: row;
+      justify-content: space-between;
+      gap: var(--spacing-xl);
+    }
+  }
+
+  .footer-bar-logo {
+    display: block;
+    order: -1;
+    outline: none;
+    border-radius: var(--radius-sm);
+    transition: opacity var(--transition-normal);
+  }
+
+  .footer-bar-logo:hover {
+    opacity: 0.8;
+  }
+
+  .footer-bar-logo:focus {
+    outline: 2px solid var(--white);
+    outline-offset: 2px;
+  }
+
+  .footer-bar-logo img {
+    height: 2rem;
+    width: auto;
+    display: block;
+  }
+
+  .footer-bar nav {
+    order: 0;
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 768px) {
+    .footer-links {
+      gap: var(--spacing-md);
+    }
+  }
+
+  .footer-link {
+    border-radius: var(--radius-sm);
+    color: var(--white);
+    font-size: var(--font-size-sm);
+    outline: none;
+    text-decoration: none;
+    transition: opacity var(--transition-normal);
+  }
+
+  .footer-link:hover {
+    opacity: 0.9;
+    text-decoration: underline;
+  }
+
+  .footer-link:focus {
+    outline: 2px solid var(--white);
+    outline-offset: 2px;
+  }
+
+  .footer-sep {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: var(--font-size-sm);
+    user-select: none;
+  }
+
+  .footer-copyright {
+    color: var(--white);
+    margin: 0;
+    order: 1;
+    opacity: 1;
+  }
+</style>

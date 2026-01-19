@@ -1,0 +1,62 @@
+---
+interface Props {
+  tag: string;
+  href?: string;
+  size?: "sm" | "md";
+}
+
+const { tag, href, size = "md" } = Astro.props;
+
+const sizeClasses = {
+  sm: "tag-pill--sm",
+  md: "tag-pill--md",
+};
+---
+
+{
+  href ? (
+    <a href={href} class={`tag-pill tag-pill--link ${sizeClasses[size]}`}>
+      {tag}
+    </a>
+  ) : (
+    <span class={`tag-pill ${sizeClasses[size]}`}>{tag}</span>
+  )
+}
+
+<style>
+  .tag-pill {
+    display: inline-block;
+    background-color: var(--secondary-lightest);
+    color: var(--secondary-dark);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+  }
+
+  .tag-pill--sm {
+    padding: 0.125rem var(--spacing-sm);
+    font-size: 0.75rem;
+  }
+
+  .tag-pill--md {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .tag-pill--link {
+    text-decoration: none;
+    transition:
+      background-color var(--transition-normal),
+      color var(--transition-normal);
+  }
+
+  .tag-pill--link:hover {
+    background-color: var(--secondary-lighter);
+    color: var(--secondary-darkest);
+  }
+
+  .tag-pill--link:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+</style>

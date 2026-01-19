@@ -1,0 +1,50 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import PotluckGrid from "@/components/potluck/PotluckGrid.astro";
+
+const drinks = await getCollection("drinks");
+
+// Sort by addedDate if available, newest first
+const sortedItems = drinks.sort((a, b) => {
+  const dateA = a.data.addedDate ? new Date(a.data.addedDate).getTime() : 0;
+  const dateB = b.data.addedDate ? new Date(b.data.addedDate).getTime() : 0;
+  return dateB - dateA;
+});
+---
+
+<Layout
+  title="Drinks"
+  description="What Baltimore is thirsty for related to organizing, mutual aid, and solidarity around immigration."
+>
+  <section class="section-padding">
+    <div class="container-content">
+      <header class="page-header">
+        <h1 class="text-heading-1">Drinks</h1>
+        <div class="title-accent"></div>
+        <p class="text-body-large page-description">
+          What Baltimore is thirsty for related to organizing, mutual aid, and
+          solidarity around immigration. Things you've experienced in other
+          cities, or things you haven't found here yet that might make a
+          difference locally.
+        </p>
+      </header>
+
+      <PotluckGrid
+        items={sortedItems}
+        category="drinks"
+        emptyMessage="No drinks added yet. Check back soon for ideas worth thirsting for!"
+      />
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-header {
+    margin-bottom: var(--spacing-3xl);
+  }
+
+  .page-description {
+    max-width: 65ch;
+  }
+</style>

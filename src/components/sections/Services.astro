@@ -1,0 +1,91 @@
+---
+import Section from "@/components/ui/Section.astro";
+
+interface Service {
+  title: string;
+  description: string;
+  icon?: string;
+}
+
+export interface Props {
+  title?: string;
+  subtitle?: string;
+  services: Service[];
+  columns?: number;
+}
+
+const { title = "Our Services", subtitle, services, columns = 3 } = Astro.props;
+---
+
+<Section id="services" title={title} description={subtitle}>
+  <ul class="services-grid" data-columns={columns}>
+    {
+      services.map((service: Service) => (
+        <li class="card-service">
+          {service.icon && <div class="text-4xl mb-4">{service.icon}</div>}
+          <h3 class="text-xl font-semibold text-card-foreground mb-3">
+            {service.title}
+          </h3>
+          <p class="text-muted-foreground">{service.description}</p>
+        </li>
+      ))
+    }
+  </ul>
+</Section>
+
+<style is:global>
+  /* Services grid styles */
+  .services-grid {
+    display: grid;
+    gap: var(--spacing-md);
+    grid-template-columns: 1fr;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    .services-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-md);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .services-grid {
+      gap: var(--spacing-xl);
+    }
+    .services-grid[data-columns="1"] {
+      grid-template-columns: repeat(1, 1fr);
+    }
+    .services-grid[data-columns="2"] {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .services-grid[data-columns="3"] {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .services-grid[data-columns="4"] {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .services-grid[data-columns="5"] {
+      grid-template-columns: repeat(5, 1fr);
+    }
+    .services-grid[data-columns="6"] {
+      grid-template-columns: repeat(6, 1fr);
+    }
+  }
+
+  /* Service card - only used in Services component */
+  .card-service {
+    background-color: var(--background-default);
+    border: var(--border-width) solid var(--border-default);
+    border-radius: var(--radius-lg);
+    color: var(--text-color-default);
+    padding: var(--spacing-xl);
+    transition: box-shadow var(--transition-normal);
+  }
+
+  .card-service:hover {
+    border-color: var(--border-default);
+  }
+</style>

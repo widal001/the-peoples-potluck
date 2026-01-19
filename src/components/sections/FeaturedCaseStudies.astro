@@ -1,0 +1,72 @@
+---
+import { getCollection } from "astro:content";
+import Post from "@/components/ui/Post.astro";
+import Section from "@/components/ui/Section.astro";
+import LinkButton from "@/components/ui/LinkButton.astro";
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  limit?: number;
+}
+
+const { title = "Featured case studies", subtitle, limit = 3 } = Astro.props;
+
+const allCaseStudies = await getCollection("case-studies");
+const featuredCaseStudies = allCaseStudies
+  .filter((cs) => cs.data.featured)
+  .sort((a, b) => {
+    // Sort by publish date (newest first)
+    return (
+      new Date(b.data.publishDate).getTime() -
+      new Date(a.data.publishDate).getTime()
+    );
+  })
+  .slice(0, limit);
+---
+
+{
+  featuredCaseStudies.length > 0 && (
+    <Section
+      title={title}
+      description={subtitle}
+      backgroundColor="var(--secondary-lightest)"
+    >
+      <div class="grid-responsive">
+        {featuredCaseStudies.map((caseStudy) => (
+          <Post entry={caseStudy} basePath="/case-studies" />
+        ))}
+      </div>
+
+      <div class="case-studies-cta">
+        <LinkButton href="/case-studies" text="View all case studies" />
+      </div>
+    </Section>
+  )
+}
+
+<style is:global>
+  /* Grid styles */
+  .grid-responsive {
+    display: grid;
+    gap: var(--spacing-xl);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .grid-responsive {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid-responsive {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .case-studies-cta {
+    margin-top: var(--spacing-2xl);
+    text-align: center;
+  }
+</style>

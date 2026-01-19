@@ -1,0 +1,86 @@
+---
+interface Props {
+  label: string;
+  id: string;
+  name: string;
+  type?: "text" | "email" | "textarea";
+  placeholder?: string;
+  required?: boolean;
+  rows?: number;
+}
+
+const {
+  label,
+  id,
+  name,
+  type = "text",
+  placeholder,
+  required = false,
+  rows = 6,
+} = Astro.props;
+---
+
+<label for={id} class="form-label">
+  {label}
+  {
+    type === "textarea" ? (
+      <textarea
+        id={id}
+        name={name}
+        placeholder={placeholder}
+        required={required}
+        rows={rows}
+        class="form-textarea"
+      />
+    ) : (
+      <input
+        type={type}
+        id={id}
+        name={name}
+        placeholder={placeholder}
+        required={required}
+        class="form-input"
+      />
+    )
+  }
+</label>
+
+<style is:global>
+  .form-label {
+    color: var(--text-color-default);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .form-input,
+  .form-textarea {
+    background-color: var(--background-default);
+    border: var(--border-width) solid var(--border-default);
+    border-radius: var(--radius-lg);
+    color: var(--text-color-default);
+    font-family: inherit;
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    transition: all var(--transition-normal);
+    width: 100%;
+  }
+
+  .form-textarea {
+    resize: vertical;
+  }
+
+  .form-input:focus,
+  .form-textarea:focus {
+    border-color: var(--accent);
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .form-input::placeholder,
+  .form-textarea::placeholder {
+    color: var(--secondary-mid);
+    opacity: 0.6;
+  }
+</style>

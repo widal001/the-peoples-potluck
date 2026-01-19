@@ -1,0 +1,66 @@
+---
+import Post from "./Post.astro";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  featured: CollectionEntry<"case-studies">[];
+  regular: CollectionEntry<"case-studies">[];
+  basePath: string;
+  featuredTitle?: string;
+  regularTitle?: string;
+  emptyMessage?: string;
+}
+
+const {
+  featured,
+  regular,
+  basePath,
+  featuredTitle = "Featured",
+  regularTitle = "All",
+  emptyMessage = "Content coming soon. Check back later.",
+} = Astro.props;
+---
+
+{
+  featured.length > 0 && (
+    <div style="margin-bottom: var(--spacing-3xl);">
+      <h2 class="text-heading-2" style="margin-bottom: var(--spacing-lg);">
+        {featuredTitle}
+      </h2>
+      <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--spacing-xl); list-style: none; margin: 0; padding: 0; align-items: stretch;">
+        {featured.map((entry) => (
+          <li style="display: flex; height: 100%;">
+            <Post entry={entry} basePath={basePath} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+{
+  regular.length > 0 && (
+    <div>
+      {featured.length > 0 && (
+        <h2 class="text-heading-2" style="margin-bottom: var(--spacing-lg);">
+          {regularTitle}
+        </h2>
+      )}
+      <ul style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--spacing-xl); list-style: none; margin: 0; padding: 0; align-items: stretch;">
+        {regular.map((entry) => (
+          <li style="display: flex; height: 100%;">
+            <Post entry={entry} basePath={basePath} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+{
+  featured.length === 0 && regular.length === 0 && (
+    <div class="card">
+      <p class="text-body-large">{emptyMessage}</p>
+    </div>
+  )
+}

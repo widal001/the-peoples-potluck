@@ -1,0 +1,68 @@
+---
+export interface Props {
+  id?: string;
+  title?: string;
+  description?: string;
+  backgroundColor?: string;
+  class?: string;
+}
+
+const {
+  id,
+  title,
+  description,
+  backgroundColor = "var(--primary-lightest)",
+  class: className = "",
+} = Astro.props;
+---
+
+<section
+  class={`section-spaced ${className}`}
+  id={id}
+  style={`background: ${backgroundColor};`}
+>
+  <div class="container">
+    {
+      (title || description) && (
+        <div class="section-centered">
+          {title && <h2 class="section-title">{title}</h2>}
+          {description && <p class="section-subtitle">{description}</p>}
+        </div>
+      )
+    }
+
+    <slot />
+  </div>
+</section>
+
+<style is:global>
+  /* Section styles */
+  .section-spaced {
+    padding: 5rem var(--spacing-md);
+  }
+
+  .section-centered {
+    margin-bottom: var(--spacing-2xl);
+    text-align: center;
+  }
+
+  .section-title {
+    color: var(--text-color-default);
+    font-size: clamp(var(--font-size-3xl), 4vw, var(--font-size-4xl));
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .section-subtitle {
+    color: var(--text-color-default);
+    font-size: var(--font-size-xl);
+    margin-inline: auto;
+    max-width: 56rem;
+    opacity: 0.75;
+  }
+
+  .container {
+    margin-inline: auto;
+    max-width: 80rem;
+  }
+</style>

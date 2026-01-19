@@ -1,0 +1,33 @@
+---
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import MDXLayout from "@/layouts/MDXLayout.astro";
+
+export async function getStaticPaths() {
+  const pages = await getCollection("pages");
+  return pages.map((page) => {
+    // Remove .mdx extension from slug
+    const slug = page.slug.replace(/\.mdx$/, "");
+    return {
+      params: { slug },
+      props: { page },
+    };
+  });
+}
+
+interface Props {
+  params: { slug: string };
+  page: CollectionEntry<"pages">;
+}
+
+const { page } = Astro.props as Props;
+const { Content } = await page.render();
+---
+
+<MDXLayout
+  title={page.data.title}
+  description={page.data.description}
+  lastUpdated={page.data.lastUpdated}
+>
+  <Content />
+</MDXLayout>

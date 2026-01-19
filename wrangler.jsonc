@@ -1,0 +1,18 @@
+{
+  "name": "resistance-potluck",
+  "compatibility_date": "2025-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./dist/_worker.js/index.js",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  }
+  // Environment variables setup:
+  // - Local dev: create .dev.vars file with:
+  //     DRY_RUN=true (or false to test Slack)
+  //     SLACK_WEBHOOK_URL=https://hooks.slack.com/...
+  // - Production: Set via GitHub Actions (see cd-publish.yml)
+  //
+  // Rate limiting: Configure via Cloudflare Dashboard > Security > WAF > Rate limiting rules
+  // Example rule: URI Path equals "/api/contact" → Block for 1 minute when > 5 requests per minute
+}
