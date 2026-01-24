@@ -87,7 +87,7 @@
   }
 
   .filter-panel__content {
-    padding: 0 var(--spacing-lg) var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
   }
 
   .filter-panel__sliders {

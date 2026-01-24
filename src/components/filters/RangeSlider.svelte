@@ -52,6 +52,79 @@
   function isInRange(tick: number): boolean {
     return tick >= minValue && tick <= maxValue;
   }
+
+  // Track which tick is being hovered on the track
+  let hoveredTick: number | null = null;
+
+  function handleTrackMouseMove(event: MouseEvent) {
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const percentage = mouseX / rect.width;
+    const value = Math.round(min + percentage * (max - min));
+    hoveredTick = Math.max(min, Math.min(max, value));
+  }
+
+  function handleTrackMouseLeave() {
+    hoveredTick = null;
+  }
+
+  // Handle click on track to jump to position
+  function handleTrackClick(event: MouseEvent) {
+    // Ignore clicks that originated from the input thumbs
+    if ((event.target as HTMLElement).tagName === "INPUT") {
+      return;
+    }
+
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    const clickedValue = Math.round(min + percentage * (max - min));
+    jumpToValue(clickedValue);
+  }
+
+  // Handle click on tick label
+  function handleTickClick(value: number) {
+    jumpToValue(value);
+  }
+
+  // Jump the nearest handle to the given value
+  function jumpToValue(targetValue: number) {
+    const clampedValue = Math.max(min, Math.min(max, targetValue));
+
+    // If clicking on the current min position, move max to join it
+    if (clampedValue === minValue) {
+      setFilter(axis, [clampedValue, clampedValue]);
+      return;
+    }
+
+    // If clicking on the current max position, move min to join it
+    if (clampedValue === maxValue) {
+      setFilter(axis, [clampedValue, clampedValue]);
+      return;
+    }
+
+    // If clicking outside the current range, move the appropriate handle
+    if (clampedValue < minValue) {
+      setFilter(axis, [clampedValue, maxValue]);
+      return;
+    }
+    if (clampedValue > maxValue) {
+      setFilter(axis, [minValue, clampedValue]);
+      return;
+    }
+
+    // Clicking inside the range - determine which handle is closer
+    const distToMin = Math.abs(clampedValue - minValue);
+    const distToMax = Math.abs(clampedValue - maxValue);
+
+    if (distToMin < distToMax) {
+      setFilter(axis, [clampedValue, maxValue]);
+    } else {
+      setFilter(axis, [minValue, clampedValue]);
+    }
+  }
 </script>
 
 <div class="range-slider">
@@ -65,7 +138,14 @@
     <span class="range-slider__endpoint">{maxLabel}</span>
   </div>
 
-  <div class="range-slider__track-container">
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <div
+    class="range-slider__track-container"
+    on:click={handleTrackClick}
+    on:mousemove={handleTrackMouseMove}
+    on:mouseleave={handleTrackMouseLeave}
+  >
     <div class="range-slider__track">
       <div
         class="range-slider__range"
@@ -102,12 +182,16 @@
 
   <div class="range-slider__ticks">
     {#each ticks as tick}
-      <span
+      <button
+        type="button"
         class="range-slider__tick"
         class:range-slider__tick--in-range={isInRange(tick)}
+        class:range-slider__tick--hovered={hoveredTick === tick}
+        on:click={() => handleTickClick(tick)}
+        tabindex="-1"
       >
         {tick}
-      </span>
+      </button>
     {/each}
   </div>
 </div>
@@ -165,6 +249,7 @@
     height: calc(var(--thumb-size) + var(--spacing-sm));
     display: flex;
     align-items: center;
+    cursor: pointer;
   }
 
   .range-slider__track {
@@ -258,6 +343,18 @@
     color: var(--text-color-lighter);
     width: 1rem;
     text-align: center;
+    background: none;
+    border: none;
+    padding: var(--spacing-xs) 0;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast);
+  }
+
+  .range-slider__tick:hover,
+  .range-slider__tick--hovered {
+    color: var(--accent);
+    text-decoration: underline;
   }
 
   .range-slider__tick--in-range {

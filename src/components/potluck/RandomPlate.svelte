@@ -60,6 +60,7 @@
   }
 
   let plate: PlateItem[] = [];
+  let isRefreshing = false;
 
   // Generate a new plate based on current filters
   function generatePlate() {
@@ -94,9 +95,14 @@
     return unsubscribe;
   });
 
-  // Regenerate plate when button clicked
+  // Regenerate plate when button clicked with animation
   function handleNewPlate() {
-    generatePlate();
+    isRefreshing = true;
+    // Wait for fade out, then update and fade back in
+    setTimeout(() => {
+      generatePlate();
+      isRefreshing = false;
+    }, 150);
   }
 </script>
 
@@ -115,7 +121,7 @@
   {/if}
 </div>
 
-<div class="plate-display">
+<div class="plate-display" class:plate-display--refreshing={isRefreshing}>
   {#each plate as { key, label, description, item, isExact }}
     <div
       class="plate-display__item"
@@ -161,6 +167,14 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: var(--spacing-xl);
+    transition:
+      opacity 150ms ease-out,
+      transform 150ms ease-out;
+  }
+
+  .plate-display--refreshing {
+    opacity: 0.5;
+    transform: scale(0.98);
   }
 
   @media (min-width: 768px) {
