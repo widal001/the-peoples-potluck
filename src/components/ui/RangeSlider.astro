@@ -1,0 +1,227 @@
+---
+interface Props {
+  id: string;
+  label: string;
+  minLabel: string;
+  maxLabel: string;
+  min?: number;
+  max?: number;
+  defaultMin?: number;
+  defaultMax?: number;
+}
+
+const {
+  id,
+  label,
+  minLabel,
+  maxLabel,
+  min = 1,
+  max = 5,
+  defaultMin = 1,
+  defaultMax = 5,
+} = Astro.props;
+---
+
+<div class="range-slider" data-range-slider data-axis={id}>
+  <div class="range-slider__header">
+    <span class="range-slider__label">{label}</span>
+    <span class="range-slider__value" data-value-display>
+      {defaultMin === min && defaultMax === max ? "all" : `${defaultMin}-${defaultMax}`}
+    </span>
+  </div>
+  
+  <div class="range-slider__labels">
+    <span class="range-slider__endpoint">{minLabel}</span>
+    <span class="range-slider__endpoint">{maxLabel}</span>
+  </div>
+  
+  <div class="range-slider__track-container">
+    <div class="range-slider__track">
+      <div class="range-slider__range" data-range-fill></div>
+    </div>
+    
+    <input
+      type="range"
+      id={`${id}-min`}
+      name={`${id}-min`}
+      min={min}
+      max={max}
+      value={defaultMin}
+      step="1"
+      class="range-slider__input range-slider__input--min"
+      data-min-input
+      aria-label={`${label} minimum value`}
+    />
+    
+    <input
+      type="range"
+      id={`${id}-max`}
+      name={`${id}-max`}
+      min={min}
+      max={max}
+      value={defaultMax}
+      step="1"
+      class="range-slider__input range-slider__input--max"
+      data-max-input
+      aria-label={`${label} maximum value`}
+    />
+  </div>
+  
+  <div class="range-slider__ticks">
+    {Array.from({ length: max - min + 1 }, (_, i) => (
+      <span class="range-slider__tick" data-tick={min + i}>{min + i}</span>
+    ))}
+  </div>
+</div>
+
+<style>
+  .range-slider {
+    --thumb-size: 1.25rem;
+    --track-height: 0.375rem;
+    --accent-color: var(--accent);
+    --track-bg: var(--secondary-lighter);
+    
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+    background-color: var(--background-default);
+    border: var(--border-width) solid var(--border-default);
+    border-radius: var(--radius-lg);
+  }
+  
+  .range-slider__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .range-slider__label {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-md);
+    color: var(--text-color-default);
+  }
+  
+  .range-slider__value {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-lighter);
+    font-variant-numeric: tabular-nums;
+    min-width: 2.5rem;
+    text-align: right;
+  }
+  
+  .range-slider__labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .range-slider__endpoint {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-lighter);
+    font-style: italic;
+  }
+  
+  .range-slider__track-container {
+    position: relative;
+    height: calc(var(--thumb-size) + var(--spacing-sm));
+    display: flex;
+    align-items: center;
+  }
+  
+  .range-slider__track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: var(--track-height);
+    background-color: var(--track-bg);
+    border-radius: var(--radius-full);
+  }
+  
+  .range-slider__range {
+    position: absolute;
+    height: 100%;
+    background-color: var(--accent-color);
+    border-radius: var(--radius-full);
+    left: 0%;
+    right: 0%;
+  }
+  
+  .range-slider__input {
+    position: absolute;
+    width: 100%;
+    height: var(--thumb-size);
+    background: transparent;
+    pointer-events: none;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+  
+  .range-slider__input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    background-color: var(--white);
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+  
+  .range-slider__input::-moz-range-thumb {
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    background-color: var(--white);
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+  
+  .range-slider__input::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .range-slider__input::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .range-slider__input:focus {
+    outline: none;
+  }
+  
+  .range-slider__input:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px var(--accent-lightest);
+  }
+  
+  .range-slider__input:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 3px var(--accent-lightest);
+  }
+  
+  .range-slider__ticks {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 calc(var(--thumb-size) / 2 - 0.25rem);
+    margin-top: var(--spacing-xs);
+  }
+  
+  .range-slider__tick {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-lighter);
+    width: 1rem;
+    text-align: center;
+  }
+  
+  .range-slider__tick[data-in-range="true"] {
+    color: var(--accent-dark);
+    font-weight: var(--font-weight-medium);
+  }
+</style>
