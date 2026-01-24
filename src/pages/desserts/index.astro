@@ -1,16 +1,12 @@
 ---
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
-import PotluckGrid from "@/components/potluck/PotluckGrid.astro";
+import ActiveFilters from "@/components/filters/ActiveFilters.svelte";
+import FilterPanel from "@/components/filters/FilterPanel.svelte";
+import FilterableGrid from "@/components/filters/FilterableGrid.svelte";
+import { prepareCollectionItems } from "@/lib/filters";
 
-const desserts = await getCollection("desserts");
-
-// Sort by addedDate if available, newest first
-const sortedItems = desserts.sort((a, b) => {
-  const dateA = a.data.addedDate ? new Date(a.data.addedDate).getTime() : 0;
-  const dateB = b.data.addedDate ? new Date(b.data.addedDate).getTime() : 0;
-  return dateB - dateA;
-});
+const items = prepareCollectionItems(await getCollection("desserts"));
 ---
 
 <Layout
@@ -30,10 +26,16 @@ const sortedItems = desserts.sort((a, b) => {
         </p>
       </header>
 
-      <PotluckGrid
-        items={sortedItems}
+      <div class="filter-controls">
+        <ActiveFilters client:load />
+        <FilterPanel client:load />
+      </div>
+
+      <FilterableGrid
+        {items}
         category="desserts"
-        emptyMessage="No desserts added yet. Check back soon for hopeful initiatives!"
+        emptyMessage="No desserts match your filters. Try adjusting the flavor profile or reset filters."
+        client:load
       />
     </div>
   </section>
@@ -41,10 +43,17 @@ const sortedItems = desserts.sort((a, b) => {
 
 <style>
   .page-header {
-    margin-bottom: var(--spacing-3xl);
+    margin-bottom: var(--spacing-xl);
   }
 
   .page-description {
     max-width: 65ch;
+  }
+
+  .filter-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
   }
 </style>

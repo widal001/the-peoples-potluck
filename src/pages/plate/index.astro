@@ -1,57 +1,16 @@
 ---
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
-import PlateDisplay from "@/components/potluck/PlateDisplay.astro";
+import ActiveFilters from "@/components/filters/ActiveFilters.svelte";
+import FilterPanel from "@/components/filters/FilterPanel.svelte";
+import RandomPlate from "@/components/potluck/RandomPlate.svelte";
+import { collectionEntryToItem } from "@/lib/filters";
 
-// Fetch all collections
-const sideDishes = await getCollection("side-dishes");
-const desserts = await getCollection("desserts");
-const platesCutlery = await getCollection("plates-cutlery");
-const drinks = await getCollection("drinks");
-
-// Helper to get random item from array
-const getRandomItem = <T,>(arr: T[]): T | undefined => {
-  if (arr.length === 0) return undefined;
-  return arr[Math.floor(Math.random() * arr.length)];
-};
-
-// Get random items for initial server-side render
-const randomSideDish = getRandomItem(sideDishes);
-const randomDessert = getRandomItem(desserts);
-const randomPlatesCutlery = getRandomItem(platesCutlery);
-const randomDrink = getRandomItem(drinks);
-
-// Prepare data for client-side randomization
-const allItems = {
-  sideDishes: sideDishes.map((item) => ({
-    slug: item.slug,
-    title: item.data.title,
-    description: item.data.description,
-    tags: item.data.tags || [],
-    icon: item.data.icon,
-  })),
-  desserts: desserts.map((item) => ({
-    slug: item.slug,
-    title: item.data.title,
-    description: item.data.description,
-    tags: item.data.tags || [],
-    icon: item.data.icon,
-  })),
-  platesCutlery: platesCutlery.map((item) => ({
-    slug: item.slug,
-    title: item.data.title,
-    description: item.data.description,
-    tags: item.data.tags || [],
-    icon: item.data.icon,
-  })),
-  drinks: drinks.map((item) => ({
-    slug: item.slug,
-    title: item.data.title,
-    description: item.data.description,
-    tags: item.data.tags || [],
-    icon: item.data.icon,
-  })),
-};
+// Fetch all collections and map to PotluckItem format
+const sideDishes = (await getCollection("side-dishes")).map(collectionEntryToItem);
+const desserts = (await getCollection("desserts")).map(collectionEntryToItem);
+const platesCutlery = (await getCollection("plates-cutlery")).map(collectionEntryToItem);
+const drinks = (await getCollection("drinks")).map(collectionEntryToItem);
 ---
 
 <Layout
@@ -65,21 +24,23 @@ const allItems = {
         <div class="title-accent"></div>
         <p class="text-body-large plate-description">
           Here's a random selection from the potluck—one resource from each
-          category. Click the button below to get a new combination.
+          category. Use the flavor sliders to adjust what kind of resources
+          you're looking for, then click the button to get a new combination.
         </p>
-        <button id="new-plate-btn" class="button-primary">
-          Make me a new plate
-        </button>
       </header>
 
-      <div id="plate-container">
-        <PlateDisplay
-          sideDish={randomSideDish}
-          dessert={randomDessert}
-          platesCutlery={randomPlatesCutlery}
-          drink={randomDrink}
-        />
+      <div class="filter-controls">
+        <ActiveFilters client:load />
+        <FilterPanel client:load />
       </div>
+
+      <RandomPlate
+        {sideDishes}
+        {desserts}
+        {platesCutlery}
+        {drinks}
+        client:load
+      />
 
       <div class="plate-footer">
         <p class="text-body">
@@ -96,338 +57,60 @@ const allItems = {
   </section>
 </Layout>
 
-<script define:vars={{ allItems }}>
-  // Client-side randomization
-  const newPlateBtn = document.getElementById("new-plate-btn");
-  const plateContainer = document.getElementById("plate-container");
-
-  const categoryDescriptions = {
-    "side-dishes": "Something to know about",
-    desserts: "Something sweet",
-    "plates-cutlery": "Historical context",
-    drinks: "Something to thirst for",
-  };
-
-  const categoryLabels = {
-    "side-dishes": "side dish",
-    desserts: "dessert",
-    "plates-cutlery": "plates & cutlery",
-    drinks: "drink",
-  };
-
-  function getRandomItem(arr) {
-    if (!arr || arr.length === 0) return null;
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
-  function truncateDescription(desc, maxLength = 150) {
-    if (desc.length <= maxLength) return desc;
-    return desc.slice(0, maxLength) + "...";
-  }
-
-  function createTagPill(tag) {
-    return `<span class="tag-pill tag-pill--sm">${tag}</span>`;
-  }
-
-  function createIcon(icon) {
-    if (!icon) return "";
-    return `
-      <div class="potluck-icon potluck-icon--md" 
-           style="--icon-primary: ${icon.primaryColor}; --icon-secondary: ${icon.secondaryColor};"
-           aria-hidden="true">
-        <span class="potluck-icon__placeholder">${icon.svg}</span>
-      </div>
-    `;
-  }
-
-  function createCard(item, category) {
-    if (!item) {
-      return `
-        <div class="potluck-grid__empty">
-          <p class="text-body-large">No items in this category yet.</p>
-        </div>
-      `;
-    }
-
-    const href = `/${category}/${item.slug}/`;
-    const tags = item.tags
-      .slice(0, 4)
-      .map((tag) => createTagPill(tag))
-      .join("");
-
-    return `
-      <a href="${href}" class="potluck-card-link" aria-label="Read more about ${item.title}">
-        <article class="potluck-card">
-          <div class="potluck-card__header">
-            ${createIcon(item.icon)}
-            <h3 class="potluck-card__title">${item.title}</h3>
-          </div>
-          <p class="potluck-card__description">${truncateDescription(item.description)}</p>
-          ${tags ? `<div class="potluck-card__tags">${tags}</div>` : ""}
-        </article>
-      </a>
-    `;
-  }
-
-  function createPlateItem(item, category) {
-    return `
-      <div class="plate-display__item">
-        <div class="plate-display__category-row">
-          <a href="/${category}/" class="category-badge category-badge--link">${categoryLabels[category]}</a>
-          <span class="plate-display__category-description">${categoryDescriptions[category]}</span>
-        </div>
-        ${createCard(item, category)}
-      </div>
-    `;
-  }
-
-  function renderPlate() {
-    const sideDish = getRandomItem(allItems.sideDishes);
-    const dessert = getRandomItem(allItems.desserts);
-    const platesCutlery = getRandomItem(allItems.platesCutlery);
-    const drink = getRandomItem(allItems.drinks);
-
-    plateContainer.innerHTML = `
-      <div class="plate-display">
-        ${createPlateItem(sideDish, "side-dishes")}
-        ${createPlateItem(dessert, "desserts")}
-        ${createPlateItem(platesCutlery, "plates-cutlery")}
-        ${createPlateItem(drink, "drinks")}
-      </div>
-    `;
-  }
-
-  newPlateBtn.addEventListener("click", () => {
-    // Add a subtle animation
-    plateContainer.style.opacity = "0.5";
-    plateContainer.style.transform = "scale(0.98)";
-
-    setTimeout(() => {
-      renderPlate();
-      plateContainer.style.opacity = "1";
-      plateContainer.style.transform = "scale(1)";
-    }, 150);
-  });
-</script>
-
 <style>
   .plate-page {
     min-height: 80vh;
   }
 
   .plate-header {
-    margin-bottom: var(--spacing-3xl);
+    margin-bottom: var(--spacing-xl);
   }
 
   .plate-description {
     max-width: 600px;
-    margin-bottom: var(--spacing-xl);
   }
 
-  #plate-container {
-    transition:
-      opacity 0.15s ease,
-      transform 0.15s ease;
+  .filter-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
   }
 
   .plate-footer {
     margin-top: var(--spacing-3xl);
     padding-top: var(--spacing-xl);
-    border-top: 1px solid var(--border-default);
-    text-align: center;
+    border-top: var(--border-width) solid var(--border-default);
   }
 
   .category-links {
     display: flex;
-    justify-content: center;
     flex-wrap: wrap;
     gap: var(--spacing-md);
-    margin-top: var(--spacing-lg);
+    margin-top: var(--spacing-md);
   }
 
   .category-link {
-    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--secondary-lightest);
+    color: var(--secondary-dark);
+    border-radius: var(--radius-md);
     text-decoration: none;
     font-weight: var(--font-weight-medium);
-    padding: var(--spacing-sm) var(--spacing-md);
-    border: 1px solid var(--accent);
-    border-radius: var(--radius-md);
     transition:
       background-color var(--transition-normal),
       color var(--transition-normal);
   }
 
   .category-link:hover {
-    background-color: var(--accent);
-    color: var(--white);
+    background-color: var(--secondary-lighter);
+    color: var(--secondary-darkest);
   }
 
-  /* Inline styles for client-side rendered components */
-  :global(.plate-display) {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-xl);
-  }
-
-  :global(.plate-display__item) {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-
-  :global(.plate-display__category-row) {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    flex-wrap: wrap;
-  }
-
-  :global(.plate-display__category-description) {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-lighter);
-    font-style: italic;
-  }
-
-  :global(.category-badge) {
-    display: inline-block;
-    background-color: var(--accent-lightest);
-    color: var(--accent-dark);
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    text-transform: lowercase;
-  }
-
-  :global(.category-badge--link) {
-    text-decoration: none;
-    transition:
-      background-color var(--transition-normal),
-      color var(--transition-normal);
-  }
-
-  :global(.category-badge--link:hover) {
-    background-color: var(--accent-lighter);
-    color: var(--accent-darkest);
-  }
-
-  :global(.potluck-card-link) {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  :global(.potluck-card) {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    padding: var(--spacing-lg);
-    background-color: var(--background-default);
-    border: var(--border-width) solid var(--border-default);
-    border-radius: var(--radius-lg);
-    transition:
-      transform var(--transition-normal) ease,
-      border-color var(--transition-normal) ease,
-      box-shadow var(--transition-normal) ease;
-  }
-
-  :global(.potluck-card-link:hover .potluck-card),
-  :global(.potluck-card-link:focus .potluck-card) {
-    transform: translateY(-4px);
-    border-color: var(--accent);
-    box-shadow: var(--shadow-md);
-  }
-
-  :global(.potluck-card__header) {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-  }
-
-  :global(.potluck-card__title) {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color-default);
-    margin: 0;
-    line-height: 1.3;
-  }
-
-  :global(.potluck-card__description) {
-    font-size: var(--font-size-md);
-    color: var(--text-color-default);
-    opacity: 0.8;
-    margin: 0 0 var(--spacing-md) 0;
-    flex-grow: 1;
-    line-height: 1.5;
-  }
-
-  :global(.potluck-card__tags) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-xs);
-    margin-top: auto;
-  }
-
-  :global(.tag-pill) {
-    display: inline-block;
-    background-color: var(--secondary-lightest);
-    color: var(--secondary-dark);
-    border-radius: var(--radius-md);
-    font-weight: var(--font-weight-medium);
-    white-space: nowrap;
-  }
-
-  :global(.tag-pill--sm) {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: 0.75rem;
-  }
-
-  :global(.potluck-icon) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-lg);
-    background: linear-gradient(
-      135deg,
-      var(--icon-primary) 0%,
-      var(--icon-secondary) 100%
-    );
-    color: var(--white);
-    font-weight: var(--font-weight-medium);
-    text-transform: lowercase;
-  }
-
-  :global(.potluck-icon--md) {
-    width: 3.5rem;
-    height: 3.5rem;
-    font-size: var(--font-size-md);
-    flex-shrink: 0;
-  }
-
-  :global(.potluck-icon__placeholder) {
-    opacity: 0.9;
-    text-align: center;
-    line-height: 1.2;
-    max-width: 80%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  :global(.potluck-grid__empty) {
-    padding: var(--spacing-xl);
-    background-color: var(--secondary-lightest);
-    border-radius: var(--radius-lg);
-    text-align: center;
-  }
-
-  @media (min-width: 768px) {
-    :global(.plate-display) {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  .category-link:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 </style>

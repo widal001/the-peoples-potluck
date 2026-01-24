@@ -22,6 +22,15 @@ const caseStudies = defineCollection({
   }),
 });
 
+// Flavor profile schema for filtering
+// Each axis is a 1-5 scale representing different dimensions of the resource
+const flavorProfileSchema = z.object({
+  heat: z.number().min(1).max(5).optional(), // mild(1) ↔ spicy(5): risk, intensity
+  sweet: z.number().min(1).max(5).optional(), // bitter(1) ↔ sweet(5): emotional register
+  zest: z.number().min(1).max(5).optional(), // subtle(1) ↔ bold(5): visibility, presence
+  heft: z.number().min(1).max(5).optional(), // light(1) ↔ hearty(5): time commitment
+});
+
 // Shared schema for potluck items
 const potluckItemSchema = z.object({
   title: z.string(),
@@ -39,6 +48,8 @@ const potluckItemSchema = z.object({
   source: z.string().optional(), // Attribution
   sourceUrl: z.string().url().optional(), // Link to learn more
   addedDate: z.string().optional(),
+  // Flavor profile for filtering by resource characteristics
+  flavor: flavorProfileSchema.optional(),
 });
 
 // Side Dishes: Existing Baltimore groups/efforts related to immigrant solidarity
