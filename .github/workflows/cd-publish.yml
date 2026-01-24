@@ -1,0 +1,46 @@
+name: CD - Publish to Cloudflare
+
+on:
+  # Trigger the workflow every time we push to the `main` branch
+  # if it includes changes to the website/ directory
+  push:
+    branches: [main]
+  # Allows us to run this workflow manually from the Actions tab on GitHub.
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout your repository using git
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Deploy to Cloudflare
+        run: |
+          # Deploy worker
+          pnpm exec wrangler deploy --var DRY_RUN:false
+
+          # Set secrets
+          printf '%s' "$SLACK_WEBHOOK_URL" | pnpm exec wrangler secret put SLACK_WEBHOOK_URL
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

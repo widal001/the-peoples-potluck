@@ -1,0 +1,37 @@
+name: "CI - Website: Run Checks"
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install website dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build site
+        # This needs to run before running checks because it generates the schema docs and changelogs.
+        run: pnpm build
+
+      - name: Run all checks
+        # linting, formatting, spelling, astro checking
+        run: pnpm checks
+
+      - name: Audit dependencies
+        run: pnpm audit
