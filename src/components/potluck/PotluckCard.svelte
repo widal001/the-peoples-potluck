@@ -1,58 +1,49 @@
----
-import PotluckIcon from "./PotluckIcon.astro";
-import TagPill from "./TagPill.astro";
+<script lang="ts">
+  import type { PotluckItem, PotluckCategory } from "@/lib/filters/types";
 
-interface Props {
-  title: string;
-  description: string;
-  href: string;
-  tags?: string[];
-  icon?: {
-    svg: string;
-    primaryColor: string;
-    secondaryColor: string;
-  };
-  category: "side-dishes" | "desserts" | "plates-cutlery" | "drinks";
-}
+  export let item: PotluckItem;
+  export let category: PotluckCategory;
+  export let href: string | undefined = undefined;
 
-const { title, description, href, tags = [], icon } = Astro.props;
+  // Default href if not provided
+  $: linkHref = href ?? `/${category}/${item.slug}/`;
 
-// Truncate description for card view
-const truncatedDescription =
-  description.length > 150 ? description.slice(0, 150) + "..." : description;
----
+  // Truncate description for card view
+  $: truncatedDescription =
+    item.description.length > 150
+      ? item.description.slice(0, 150) + "..."
+      : item.description;
+
+  // Limit tags to 4
+  $: displayTags = item.tags?.slice(0, 4) ?? [];
+</script>
 
 <a
-  href={href}
+  href={linkHref}
   class="potluck-card-link"
-  aria-label={`Read more about ${title}`}
+  aria-label="Read more about {item.title}"
 >
   <article class="potluck-card">
     <div class="potluck-card__header">
-      {
-        icon && (
-          <PotluckIcon
-            svg={icon.svg}
-            primaryColor={icon.primaryColor}
-            secondaryColor={icon.secondaryColor}
-            size="md"
-          />
-        )
-      }
-      <h3 class="potluck-card__title">{title}</h3>
+      {#if item.icon}
+        <div
+          class="potluck-icon potluck-icon--md"
+          style="--icon-primary: {item.icon.primaryColor}; --icon-secondary: {item.icon.secondaryColor};"
+          aria-hidden="true"
+        ></div>
+      {/if}
+      <h3 class="potluck-card__title">{item.title}</h3>
     </div>
 
     <p class="potluck-card__description">{truncatedDescription}</p>
 
-    {
-      tags.length > 0 && (
-        <div class="potluck-card__tags">
-          {tags.slice(0, 4).map((tag) => (
-            <TagPill tag={tag} size="sm" />
-          ))}
-        </div>
-      )
-    }
+    {#if displayTags.length > 0}
+      <div class="potluck-card__tags">
+        {#each displayTags as tag}
+          <span class="tag-pill tag-pill--sm">{tag}</span>
+        {/each}
+      </div>
+    {/if}
   </article>
 </a>
 
@@ -126,5 +117,37 @@ const truncatedDescription =
     flex-wrap: wrap;
     gap: var(--spacing-xs);
     margin-top: auto;
+  }
+
+  /* Inline PotluckIcon styles */
+  .potluck-icon {
+    display: block;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(
+      135deg,
+      var(--icon-primary) 0%,
+      var(--icon-secondary) 100%
+    );
+    flex-shrink: 0;
+  }
+
+  .potluck-icon--md {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  /* Inline TagPill styles */
+  .tag-pill {
+    display: inline-block;
+    background-color: var(--secondary-lightest);
+    color: var(--secondary-dark);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+  }
+
+  .tag-pill--sm {
+    padding: 0.125rem var(--spacing-sm);
+    font-size: 0.75rem;
   }
 </style>

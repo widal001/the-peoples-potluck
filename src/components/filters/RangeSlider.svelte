@@ -1,76 +1,114 @@
----
-interface Props {
-  id: string;
-  label: string;
-  minLabel: string;
-  maxLabel: string;
-  min?: number;
-  max?: number;
-  defaultMin?: number;
-  defaultMax?: number;
-}
+<script lang="ts">
+  import { filterState, setFilter } from "@/stores/filters";
+  import type { FlavorAxis } from "@/lib/filters/types";
+  import { MIN_FILTER_VALUE, MAX_FILTER_VALUE } from "@/lib/filters/types";
+  import { isDefaultRange } from "@/lib/filters/filter-logic";
 
-const {
-  id,
-  label,
-  minLabel,
-  maxLabel,
-  min = 1,
-  max = 5,
-  defaultMin = 1,
-  defaultMax = 5,
-} = Astro.props;
----
+  export let axis: FlavorAxis;
+  export let label: string;
+  export let minLabel: string;
+  export let maxLabel: string;
+  export let min: number = MIN_FILTER_VALUE;
+  export let max: number = MAX_FILTER_VALUE;
 
-<div class="range-slider" data-range-slider data-axis={id}>
+  // Read current value from store
+  $: range = $filterState[axis];
+  $: minValue = range[0];
+  $: maxValue = range[1];
+
+  // Display value text
+  $: valueDisplay = isDefaultRange(range) ? "all" : `${minValue}-${maxValue}`;
+
+  // Calculate fill position for visual range
+  $: fillLeft = ((minValue - min) / (max - min)) * 100;
+  $: fillRight = 100 - ((maxValue - min) / (max - min)) * 100;
+
+  // Generate tick marks
+  const ticks = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+
+  function handleMinChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    let newMin = parseInt(target.value);
+    // Don't let min exceed max
+    if (newMin > maxValue) {
+      newMin = maxValue;
+      target.value = String(newMin);
+    }
+    setFilter(axis, [newMin, maxValue]);
+  }
+
+  function handleMaxChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    let newMax = parseInt(target.value);
+    // Don't let max go below min
+    if (newMax < minValue) {
+      newMax = minValue;
+      target.value = String(newMax);
+    }
+    setFilter(axis, [minValue, newMax]);
+  }
+
+  // Check if a tick is within the selected range
+  function isInRange(tick: number): boolean {
+    return tick >= minValue && tick <= maxValue;
+  }
+</script>
+
+<div class="range-slider">
   <div class="range-slider__header">
     <span class="range-slider__label">{label}</span>
-    <span class="range-slider__value" data-value-display>
-      {defaultMin === min && defaultMax === max ? "all" : `${defaultMin}-${defaultMax}`}
-    </span>
+    <span class="range-slider__value">{valueDisplay}</span>
   </div>
-  
+
   <div class="range-slider__labels">
     <span class="range-slider__endpoint">{minLabel}</span>
     <span class="range-slider__endpoint">{maxLabel}</span>
   </div>
-  
+
   <div class="range-slider__track-container">
     <div class="range-slider__track">
-      <div class="range-slider__range" data-range-fill></div>
+      <div
+        class="range-slider__range"
+        style="left: {fillLeft}%; right: {fillRight}%;"
+      ></div>
     </div>
-    
+
     <input
       type="range"
-      id={`${id}-min`}
-      name={`${id}-min`}
-      min={min}
-      max={max}
-      value={defaultMin}
+      id="{axis}-min"
+      name="{axis}-min"
+      {min}
+      {max}
+      value={minValue}
       step="1"
       class="range-slider__input range-slider__input--min"
-      data-min-input
-      aria-label={`${label} minimum value`}
+      aria-label="{label} minimum value"
+      on:input={handleMinChange}
     />
-    
+
     <input
       type="range"
-      id={`${id}-max`}
-      name={`${id}-max`}
-      min={min}
-      max={max}
-      value={defaultMax}
+      id="{axis}-max"
+      name="{axis}-max"
+      {min}
+      {max}
+      value={maxValue}
       step="1"
       class="range-slider__input range-slider__input--max"
-      data-max-input
-      aria-label={`${label} maximum value`}
+      aria-label="{label} maximum value"
+      on:input={handleMaxChange}
     />
   </div>
-  
+
   <div class="range-slider__ticks">
-    {Array.from({ length: max - min + 1 }, (_, i) => (
-      <span class="range-slider__tick" data-tick={min + i}>{min + i}</span>
-    ))}
+    {#each ticks as tick}
+      <span
+        class="range-slider__tick"
+        class:range-slider__tick--in-range={isInRange(tick)}
+      >
+        {tick}
+      </span>
+    {/each}
   </div>
 </div>
 
@@ -80,7 +118,7 @@ const {
     --track-height: 0.375rem;
     --accent-color: var(--accent);
     --track-bg: var(--secondary-lighter);
-    
+
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
@@ -89,19 +127,19 @@ const {
     border: var(--border-width) solid var(--border-default);
     border-radius: var(--radius-lg);
   }
-  
+
   .range-slider__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .range-slider__label {
     font-weight: var(--font-weight-semibold);
     font-size: var(--font-size-md);
     color: var(--text-color-default);
   }
-  
+
   .range-slider__value {
     font-size: var(--font-size-sm);
     color: var(--text-color-lighter);
@@ -109,26 +147,26 @@ const {
     min-width: 2.5rem;
     text-align: right;
   }
-  
+
   .range-slider__labels {
     display: flex;
     justify-content: space-between;
     margin-bottom: var(--spacing-xs);
   }
-  
+
   .range-slider__endpoint {
     font-size: var(--font-size-xs);
     color: var(--text-color-lighter);
     font-style: italic;
   }
-  
+
   .range-slider__track-container {
     position: relative;
     height: calc(var(--thumb-size) + var(--spacing-sm));
     display: flex;
     align-items: center;
   }
-  
+
   .range-slider__track {
     position: absolute;
     left: 0;
@@ -137,16 +175,14 @@ const {
     background-color: var(--track-bg);
     border-radius: var(--radius-full);
   }
-  
+
   .range-slider__range {
     position: absolute;
     height: 100%;
     background-color: var(--accent-color);
     border-radius: var(--radius-full);
-    left: 0%;
-    right: 0%;
   }
-  
+
   .range-slider__input {
     position: absolute;
     width: 100%;
@@ -157,7 +193,7 @@ const {
     appearance: none;
     margin: 0;
   }
-  
+
   .range-slider__input::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -169,9 +205,11 @@ const {
     cursor: pointer;
     pointer-events: auto;
     box-shadow: var(--shadow-sm);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    transition:
+      transform var(--transition-fast),
+      box-shadow var(--transition-fast);
   }
-  
+
   .range-slider__input::-moz-range-thumb {
     width: var(--thumb-size);
     height: var(--thumb-size);
@@ -181,46 +219,48 @@ const {
     cursor: pointer;
     pointer-events: auto;
     box-shadow: var(--shadow-sm);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    transition:
+      transform var(--transition-fast),
+      box-shadow var(--transition-fast);
   }
-  
+
   .range-slider__input::-webkit-slider-thumb:hover {
     transform: scale(1.1);
     box-shadow: var(--shadow-md);
   }
-  
+
   .range-slider__input::-moz-range-thumb:hover {
     transform: scale(1.1);
     box-shadow: var(--shadow-md);
   }
-  
+
   .range-slider__input:focus {
     outline: none;
   }
-  
+
   .range-slider__input:focus-visible::-webkit-slider-thumb {
     outline: 2px solid var(--accent);
   }
-  
+
   .range-slider__input:focus-visible::-moz-range-thumb {
     outline: 2px solid var(--accent);
   }
-  
+
   .range-slider__ticks {
     display: flex;
     justify-content: space-between;
     padding: 0 calc(var(--thumb-size) / 2 - 0.25rem);
     margin-top: var(--spacing-xs);
   }
-  
+
   .range-slider__tick {
     font-size: var(--font-size-xs);
     color: var(--text-color-lighter);
     width: 1rem;
     text-align: center;
   }
-  
-  .range-slider__tick[data-in-range="true"] {
+
+  .range-slider__tick--in-range {
     color: var(--accent-dark);
     font-weight: var(--font-weight-medium);
   }

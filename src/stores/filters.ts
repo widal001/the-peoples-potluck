@@ -1,135 +1,114 @@
+/**
+ * Filter state management using nanostores
+ * Works natively with Svelte's $ syntax
+ */
+
 import { atom, computed } from "nanostores";
+import type { FilterState, FlavorAxis, FilterRange } from "@/lib/filters/types";
+import {
+  DEFAULT_FILTER_STATE,
+  DEFAULT_RANGE,
+  FLAVOR_AXES,
+  AXIS_KEYS,
+} from "@/lib/filters/types";
+import { hasActiveFilters as checkHasActiveFilters } from "@/lib/filters/filter-logic";
+import {
+  parseFiltersFromURL,
+  filtersToSearchParams,
+} from "@/lib/filters/url-sync";
 
-// Types for flavor profile filtering
-export type FlavorAxis = "heat" | "sweet" | "zest" | "heft";
-export type FilterRange = [number, number]; // [min, max] on 1-5 scale
+// Re-export types and constants for convenience
+export { FLAVOR_AXES, AXIS_KEYS, DEFAULT_FILTER_STATE, DEFAULT_RANGE };
+export type { FlavorAxis, FilterRange, FilterState };
 
-// Default range includes all values (no filtering)
-const DEFAULT_RANGE: FilterRange = [1, 5];
+// Main filter state - single atom for the entire filter state
+export const filterState = atom<FilterState>({
+  heat: [...DEFAULT_RANGE] as FilterRange,
+  sweet: [...DEFAULT_RANGE] as FilterRange,
+  zest: [...DEFAULT_RANGE] as FilterRange,
+  heft: [...DEFAULT_RANGE] as FilterRange,
+});
 
-// Axis metadata for UI labels
-export const FLAVOR_AXES: Record<
-  FlavorAxis,
-  { label: string; minLabel: string; maxLabel: string }
-> = {
-  heat: { label: "Heat", minLabel: "mild", maxLabel: "spicy" },
-  sweet: { label: "Sweet", minLabel: "bitter", maxLabel: "sweet" },
-  zest: { label: "Zest", minLabel: "subtle", maxLabel: "bold" },
-  heft: { label: "Heft", minLabel: "light", maxLabel: "hearty" },
-};
-
-// Individual filter atoms for each axis
-export const heatFilter = atom<FilterRange>([...DEFAULT_RANGE]);
-export const sweetFilter = atom<FilterRange>([...DEFAULT_RANGE]);
-export const zestFilter = atom<FilterRange>([...DEFAULT_RANGE]);
-export const heftFilter = atom<FilterRange>([...DEFAULT_RANGE]);
-
-// Map of axis to its atom for programmatic access
-export const filterAtoms: Record<FlavorAxis, typeof heatFilter> = {
-  heat: heatFilter,
-  sweet: sweetFilter,
-  zest: zestFilter,
-  heft: heftFilter,
-};
-
-// Track which filters have been explicitly set by the user
-// (used to determine whether to include in URL)
+// Track which filters user has explicitly set (for URL persistence)
 export const userSetFilters = atom<Set<FlavorAxis>>(new Set());
 
-// Computed store: all filters combined
-export const allFilters = computed(
-  [heatFilter, sweetFilter, zestFilter, heftFilter],
-  (heat, sweet, zest, heft) => ({
-    heat,
-    sweet,
-    zest,
-    heft,
-  }),
-);
+// Derived: whether any filters are active
+export const hasActiveFilters = computed(filterState, checkHasActiveFilters);
 
-// Computed store: check if any filter is active (not at default range)
-export const hasActiveFilters = computed(
-  [heatFilter, sweetFilter, zestFilter, heftFilter],
-  (heat, sweet, zest, heft) => {
-    const isDefault = (range: FilterRange) =>
-      range[0] === DEFAULT_RANGE[0] && range[1] === DEFAULT_RANGE[1];
-    return (
-      !isDefault(heat) ||
-      !isDefault(sweet) ||
-      !isDefault(zest) ||
-      !isDefault(heft)
-    );
-  },
-);
-
-// Set a filter value and mark it as user-set
+/**
+ * Set a filter value for a specific axis and mark it as user-set
+ */
 export function setFilter(axis: FlavorAxis, range: FilterRange): void {
-  filterAtoms[axis].set([...range]);
-  const current = userSetFilters.get();
-  current.add(axis);
-  userSetFilters.set(new Set(current));
+  const current = filterState.get();
+  filterState.set({ ...current, [axis]: [...range] as FilterRange });
+
+  const userSet = userSetFilters.get();
+  userSet.add(axis);
+  userSetFilters.set(new Set(userSet));
 }
 
-// Reset a single filter to default
+/**
+ * Reset a single filter to default
+ */
 export function resetFilter(axis: FlavorAxis): void {
-  filterAtoms[axis].set([...DEFAULT_RANGE]);
-  const current = userSetFilters.get();
-  current.delete(axis);
-  userSetFilters.set(new Set(current));
+  const current = filterState.get();
+  filterState.set({ ...current, [axis]: [...DEFAULT_RANGE] as FilterRange });
+
+  const userSet = userSetFilters.get();
+  userSet.delete(axis);
+  userSetFilters.set(new Set(userSet));
 }
 
-// Reset all filters to default
+/**
+ * Reset all filters to default
+ */
 export function resetAllFilters(): void {
-  heatFilter.set([...DEFAULT_RANGE]);
-  sweetFilter.set([...DEFAULT_RANGE]);
-  zestFilter.set([...DEFAULT_RANGE]);
-  heftFilter.set([...DEFAULT_RANGE]);
+  filterState.set({
+    heat: [...DEFAULT_RANGE] as FilterRange,
+    sweet: [...DEFAULT_RANGE] as FilterRange,
+    zest: [...DEFAULT_RANGE] as FilterRange,
+    heft: [...DEFAULT_RANGE] as FilterRange,
+  });
   userSetFilters.set(new Set());
 }
 
-// URL sync utilities
-const AXIS_KEYS: FlavorAxis[] = ["heat", "sweet", "zest", "heft"];
-
-// Parse URL params and set filters (call on page load)
-export function loadFiltersFromURL(): void {
+/**
+ * Initialize filter state from URL parameters
+ * Call on page mount
+ */
+export function initFromURL(): void {
   if (typeof window === "undefined") return;
 
   const params = new URLSearchParams(window.location.search);
+  const parsed = parseFiltersFromURL(params);
 
-  for (const axis of AXIS_KEYS) {
-    const value = params.get(axis);
-    if (value) {
-      const [min, max] = value.split("-").map(Number);
-      if (!isNaN(min) && !isNaN(max) && min >= 1 && max <= 5 && min <= max) {
-        filterAtoms[axis].set([min, max]);
-        const current = userSetFilters.get();
-        current.add(axis);
-        userSetFilters.set(new Set(current));
+  if (Object.keys(parsed).length > 0) {
+    const current = filterState.get();
+    const newState = { ...current };
+    const userSet = new Set<FlavorAxis>();
+
+    for (const axis of AXIS_KEYS) {
+      if (parsed[axis]) {
+        newState[axis] = parsed[axis] as FilterRange;
+        userSet.add(axis);
       }
     }
+
+    filterState.set(newState);
+    userSetFilters.set(userSet);
   }
 }
 
-// Update URL params based on current filters (only user-set ones)
-export function syncFiltersToURL(): void {
+/**
+ * Sync current filter state to URL
+ * Call after filter changes
+ */
+export function syncToURL(): void {
   if (typeof window === "undefined") return;
 
-  const params = new URLSearchParams(window.location.search);
+  const filters = filterState.get();
   const userSet = userSetFilters.get();
-
-  for (const axis of AXIS_KEYS) {
-    if (userSet.has(axis)) {
-      const [min, max] = filterAtoms[axis].get();
-      // Only add to URL if not at default range
-      if (min !== DEFAULT_RANGE[0] || max !== DEFAULT_RANGE[1]) {
-        params.set(axis, `${min}-${max}`);
-      } else {
-        params.delete(axis);
-      }
-    } else {
-      params.delete(axis);
-    }
-  }
+  const params = filtersToSearchParams(filters, userSet);
 
   const newURL = params.toString()
     ? `${window.location.pathname}?${params.toString()}`
