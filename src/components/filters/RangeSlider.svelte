@@ -8,6 +8,7 @@
   export let label: string;
   export let minLabel: string;
   export let maxLabel: string;
+  export let icon: string = "";
   export let min: number = MIN_FILTER_VALUE;
   export let max: number = MAX_FILTER_VALUE;
 
@@ -129,7 +130,21 @@
 
 <div class="range-slider">
   <div class="range-slider__header">
-    <span class="range-slider__label">{label}</span>
+    <span class="range-slider__label">
+      {#if icon}
+        <svg
+          class="range-slider__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          aria-hidden="true"
+        >
+          {@html icon}
+        </svg>
+      {/if}
+      {label}
+    </span>
     <span class="range-slider__value">{valueDisplay}</span>
   </div>
 
@@ -219,9 +234,19 @@
   }
 
   .range-slider__label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
     font-weight: var(--font-weight-semibold);
     font-size: var(--font-size-md);
     color: var(--text-color-default);
+  }
+
+  .range-slider__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: var(--accent);
   }
 
   .range-slider__value {

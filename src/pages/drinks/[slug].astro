@@ -5,6 +5,7 @@ import Layout from "@/layouts/Layout.astro";
 import CategoryBadge from "@/components/potluck/CategoryBadge.astro";
 import TagPill from "@/components/potluck/TagPill.astro";
 import PotluckIcon from "@/components/potluck/PotluckIcon.astro";
+import FlavorProfile from "@/components/potluck/FlavorProfile.astro";
 import LinkButton from "@/components/ui/LinkButton.astro";
 
 export async function getStaticPaths() {
@@ -62,6 +63,12 @@ const { Content } = await item.render();
             </div>
           )
         }
+
+        {item.data.flavor && (
+          <div class="detail-flavor">
+            <FlavorProfile flavor={item.data.flavor} />
+          </div>
+        )}
       </header>
 
       <div class="detail-content prose">
@@ -135,6 +142,13 @@ const { Content } = await item.render();
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-sm);
+  }
+
+  .detail-flavor {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background-color: var(--secondary-lightest);
+    border-radius: var(--radius-md);
   }
 
   .detail-content {

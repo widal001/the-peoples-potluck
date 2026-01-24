@@ -1,0 +1,171 @@
+---
+/**
+ * Displays a flavor profile visualization
+ * Shows each flavor axis with dots representing the value on a 1-5 scale
+ */
+import { FLAVOR_AXES, AXIS_KEYS, MAX_FILTER_VALUE } from "@/lib/filters/types";
+import type { FlavorProfile } from "@/lib/filters/types";
+
+interface Props {
+  flavor?: FlavorProfile;
+  compact?: boolean;
+}
+
+const { flavor, compact = false } = Astro.props;
+
+// Check if there's any flavor data to display
+const hasFlavorData = flavor && AXIS_KEYS.some((key) => flavor[key] !== undefined);
+---
+
+{
+  hasFlavorData && (
+    <div class:list={["flavor-profile", { "flavor-profile--compact": compact }]}>
+      {!compact && <span class="flavor-profile__label">Flavor profile</span>}
+      <div class="flavor-profile__axes">
+        {AXIS_KEYS.map((axis) => {
+          const value = flavor?.[axis];
+          const config = FLAVOR_AXES[axis];
+          if (value === undefined) return null;
+
+          return (
+            <div class="flavor-axis" title={`${config.label}: ${value}/${MAX_FILTER_VALUE}`}>
+              <span class="flavor-axis__name">
+                {!compact && (
+                  <svg
+                    class="flavor-axis__icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <Fragment set:html={config.icon} />
+                  </svg>
+                )}
+                {compact ? axis.charAt(0).toUpperCase() : config.label}
+              </span>
+              <div class="flavor-axis__dots">
+                {Array.from({ length: MAX_FILTER_VALUE }, (_, i) => (
+                  <span
+                    class:list={[
+                      "flavor-axis__dot",
+                      { "flavor-axis__dot--filled": i < value },
+                    ]}
+                    aria-hidden="true"
+                  />
+                ))}
+              </div>
+              {!compact && (
+                <span class="flavor-axis__value">
+                  {value}
+                  <span class="flavor-axis__description">
+                    {value <= 2 ? config.minLabel : value >= 4 ? config.maxLabel : "moderate"}
+                  </span>
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .flavor-profile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .flavor-profile--compact {
+    gap: var(--spacing-xs);
+  }
+
+  .flavor-profile__label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color-lighter);
+  }
+
+  .flavor-profile__axes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .flavor-profile--compact .flavor-profile__axes {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .flavor-axis {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .flavor-profile--compact .flavor-axis {
+    gap: var(--spacing-xs);
+  }
+
+  .flavor-axis__name {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--text-color-lighter);
+    min-width: 5rem;
+  }
+
+  .flavor-axis__icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+
+  .flavor-profile--compact .flavor-axis__name {
+    min-width: auto;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .flavor-axis__dots {
+    display: flex;
+    gap: 2px;
+  }
+
+  .flavor-axis__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--secondary-lighter);
+    transition: background-color var(--transition-fast);
+  }
+
+  .flavor-profile--compact .flavor-axis__dot {
+    width: 0.375rem;
+    height: 0.375rem;
+  }
+
+  .flavor-axis__dot--filled {
+    background-color: var(--accent);
+  }
+
+  .flavor-axis__value {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--text-color-default);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .flavor-axis__description {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-lighter);
+    font-style: italic;
+  }
+</style>

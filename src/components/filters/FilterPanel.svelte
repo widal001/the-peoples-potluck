@@ -10,7 +10,7 @@
   // Convert FLAVOR_AXES record to array for iteration
   const axes = Object.entries(FLAVOR_AXES) as [
     FlavorAxis,
-    { label: string; minLabel: string; maxLabel: string }
+    { label: string; minLabel: string; maxLabel: string; icon: string }
   ][];
 </script>
 
@@ -27,6 +27,7 @@
           label={config.label}
           minLabel={config.minLabel}
           maxLabel={config.maxLabel}
+          icon={config.icon}
         />
       {/each}
     </div>
