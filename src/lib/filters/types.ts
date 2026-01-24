@@ -72,10 +72,30 @@ const AXIS_ICONS = {
 
 // Metadata for all flavor axes
 export const FLAVOR_AXES: Record<FlavorAxis, AxisConfig> = {
-  heat: { label: "Heat", minLabel: "mild", maxLabel: "spicy", icon: AXIS_ICONS.heat },
-  sweet: { label: "Sweet", minLabel: "bitter", maxLabel: "sweet", icon: AXIS_ICONS.sweet },
-  zest: { label: "Zest", minLabel: "subtle", maxLabel: "bold", icon: AXIS_ICONS.zest },
-  heft: { label: "Heft", minLabel: "light", maxLabel: "hearty", icon: AXIS_ICONS.heft },
+  heat: {
+    label: "Heat",
+    minLabel: "mild",
+    maxLabel: "spicy",
+    icon: AXIS_ICONS.heat,
+  },
+  sweet: {
+    label: "Sweet",
+    minLabel: "bitter",
+    maxLabel: "sweet",
+    icon: AXIS_ICONS.sweet,
+  },
+  zest: {
+    label: "Zest",
+    minLabel: "subtle",
+    maxLabel: "bold",
+    icon: AXIS_ICONS.zest,
+  },
+  heft: {
+    label: "Heft",
+    minLabel: "light",
+    maxLabel: "hearty",
+    icon: AXIS_ICONS.heft,
+  },
 };
 
 // List of all axis keys for iteration
