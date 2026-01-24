@@ -60,7 +60,10 @@ const allItems = {
 };
 
 // Flavor axes config for rendering sliders
-const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minLabel: string; maxLabel: string }][];
+const flavorAxes = Object.entries(FLAVOR_AXES) as [
+  string,
+  { label: string; minLabel: string; maxLabel: string },
+][];
 ---
 
 <Layout
@@ -79,30 +82,49 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
         </p>
       </header>
 
-      <!-- Flavor Filter Panel -->
-      <details class="filter-panel" id="filter-panel">
-        <summary class="filter-panel__toggle">
-          <span class="filter-panel__toggle-text">Adjust flavor profile</span>
-          <span class="filter-panel__toggle-indicator" aria-hidden="true"></span>
-        </summary>
-        <div class="filter-panel__content">
-          <div class="filter-panel__sliders">
-            {flavorAxes.map(([axis, config]) => (
-              <RangeSlider
-                id={axis}
-                label={config.label}
-                minLabel={config.minLabel}
-                maxLabel={config.maxLabel}
-              />
-            ))}
+      <!-- Filter Controls Container -->
+      <div class="filter-controls">
+        <!-- Active Filters Display -->
+        <dl
+          id="active-filters"
+          class="active-filters"
+          aria-live="polite"
+          aria-label="Currently active flavor profile filters"
+        >
+        </dl>
+
+        <!-- Flavor Filter Panel -->
+        <details class="filter-panel" id="filter-panel">
+          <summary class="filter-panel__toggle">
+            <span class="filter-panel__toggle-text">Adjust flavor profile</span>
+            <span class="filter-panel__toggle-indicator" aria-hidden="true"
+            ></span>
+          </summary>
+          <div class="filter-panel__content">
+            <div class="filter-panel__sliders">
+              {
+                flavorAxes.map(([axis, config]) => (
+                  <RangeSlider
+                    id={axis}
+                    label={config.label}
+                    minLabel={config.minLabel}
+                    maxLabel={config.maxLabel}
+                  />
+                ))
+              }
+            </div>
+            <div class="filter-panel__actions">
+              <button
+                id="reset-filters-btn"
+                class="button-secondary button-sm"
+                type="button"
+              >
+                Reset filters
+              </button>
+            </div>
           </div>
-          <div class="filter-panel__actions">
-            <button id="reset-filters-btn" class="button-secondary button-sm" type="button">
-              Reset filters
-            </button>
-          </div>
-        </div>
-      </details>
+        </details>
+      </div>
 
       <div class="plate-actions">
         <button id="new-plate-btn" class="button-primary">
@@ -139,10 +161,10 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
   // ============================================
   // Filter State Management (inline nanostores-like)
   // ============================================
-  
+
   const FLAVOR_AXES = ["heat", "sweet", "zest", "heft"];
   const DEFAULT_RANGE = [1, 5];
-  
+
   // Current filter state
   const filters = {
     heat: [...DEFAULT_RANGE],
@@ -150,17 +172,17 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
     zest: [...DEFAULT_RANGE],
     heft: [...DEFAULT_RANGE],
   };
-  
+
   // Track which filters were explicitly set by user
   const userSetFilters = new Set();
-  
+
   // ============================================
   // URL Sync
   // ============================================
-  
+
   function loadFiltersFromURL() {
     const params = new URLSearchParams(window.location.search);
-    
+
     for (const axis of FLAVOR_AXES) {
       const value = params.get(axis);
       if (value) {
@@ -172,10 +194,10 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
       }
     }
   }
-  
+
   function syncFiltersToURL() {
     const params = new URLSearchParams(window.location.search);
-    
+
     for (const axis of FLAVOR_AXES) {
       if (userSetFilters.has(axis)) {
         const [min, max] = filters[axis];
@@ -188,22 +210,22 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
         params.delete(axis);
       }
     }
-    
+
     const newURL = params.toString()
       ? `${window.location.pathname}?${params.toString()}`
       : window.location.pathname;
-    
+
     window.history.replaceState({}, "", newURL);
   }
-  
+
   // ============================================
   // Filtering Logic
   // ============================================
-  
+
   function filterItems(items) {
-    return items.filter(item => {
+    return items.filter((item) => {
       const flavor = item.flavor || {};
-      return FLAVOR_AXES.every(axis => {
+      return FLAVOR_AXES.every((axis) => {
         const [min, max] = filters[axis];
         // If filter is at default, don't filter
         if (min === DEFAULT_RANGE[0] && max === DEFAULT_RANGE[1]) return true;
@@ -213,16 +235,16 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
       });
     });
   }
-  
+
   // Calculate "distance" of an item from the current filters
   function getFilterDistance(item) {
     const flavor = item.flavor || {};
     let distance = 0;
-    
+
     for (const axis of FLAVOR_AXES) {
       const [min, max] = filters[axis];
       if (min === DEFAULT_RANGE[0] && max === DEFAULT_RANGE[1]) continue;
-      
+
       const value = flavor[axis] ?? 3;
       if (value < min) {
         distance += min - value;
@@ -230,51 +252,131 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
         distance += value - max;
       }
     }
-    
+
     return distance;
   }
-  
+
   // Get random item from filtered list, with closest-match fallback
   function getFilteredRandomItem(items) {
     if (!items || items.length === 0) return null;
-    
+
     // Try exact filter match first
     const filtered = filterItems(items);
     if (filtered.length > 0) {
-      return { item: filtered[Math.floor(Math.random() * filtered.length)], exact: true };
+      return {
+        item: filtered[Math.floor(Math.random() * filtered.length)],
+        exact: true,
+      };
     }
-    
+
     // Find closest matches
-    const withDistances = items.map(item => ({
+    const withDistances = items.map((item) => ({
       item,
-      distance: getFilterDistance(item)
+      distance: getFilterDistance(item),
     }));
-    
-    const minDistance = Math.min(...withDistances.map(d => d.distance));
-    const closest = withDistances.filter(d => d.distance === minDistance);
-    
-    return { 
-      item: closest[Math.floor(Math.random() * closest.length)].item, 
-      exact: false 
+
+    const minDistance = Math.min(...withDistances.map((d) => d.distance));
+    const closest = withDistances.filter((d) => d.distance === minDistance);
+
+    return {
+      item: closest[Math.floor(Math.random() * closest.length)].item,
+      exact: false,
     };
   }
-  
+
   function hasActiveFilters() {
-    return FLAVOR_AXES.some(axis => {
+    return FLAVOR_AXES.some((axis) => {
       const [min, max] = filters[axis];
       return min !== DEFAULT_RANGE[0] || max !== DEFAULT_RANGE[1];
     });
   }
-  
+
+  function getActiveFiltersList() {
+    const active = [];
+    for (const axis of FLAVOR_AXES) {
+      const [min, max] = filters[axis];
+      if (min !== DEFAULT_RANGE[0] || max !== DEFAULT_RANGE[1]) {
+        const label = axisLabels[axis];
+        let rangeText;
+        if (min === max) {
+          rangeText = min;
+        } else {
+          rangeText = `${min}-${max}`;
+        }
+        active.push({ axis, name: label.name, range: rangeText });
+      }
+    }
+    return active;
+  }
+
+  function updateActiveFiltersDisplay() {
+    const active = getActiveFiltersList();
+
+    if (active.length === 0) {
+      activeFiltersDisplay.innerHTML = "";
+      activeFiltersDisplay.classList.remove("active-filters--visible");
+      return;
+    }
+
+    const pills = active
+      .map((f) => {
+        const label = axisLabels[f.axis];
+        const [min, max] = filters[f.axis];
+        const minLabel = label.min;
+        const maxLabel = label.max;
+
+        // Create descriptive range text for screen readers
+        let rangeDesc;
+        if (min === max) {
+          if (min === 1) {
+            rangeDesc = `set to ${minLabel}`;
+          } else if (min === 5) {
+            rangeDesc = `set to ${maxLabel}`;
+          } else {
+            rangeDesc = `set to ${min}`;
+          }
+        } else {
+          const startDesc =
+            min === 1 ? minLabel : min === 5 ? maxLabel : `${min}`;
+          const endDesc =
+            max === 5 ? maxLabel : max === 1 ? minLabel : `${max}`;
+          rangeDesc = `from ${startDesc} to ${endDesc}`;
+        }
+
+        return `<div class="filter-pill" role="listitem">
+        <dt class="filter-pill__name">${f.name}</dt>
+        <dd class="filter-pill__value" aria-label="${f.name} filter ${rangeDesc}">${f.range}</dd>
+      </div>`;
+      })
+      .join("");
+
+    activeFiltersDisplay.innerHTML = `
+      <span class="active-filters__label">Active filters:</span>
+      <div role="list" class="active-filters__list">
+        ${pills}
+      </div>
+    `;
+    activeFiltersDisplay.classList.add("active-filters--visible");
+  }
+
   // ============================================
   // DOM Elements
   // ============================================
-  
+
   const newPlateBtn = document.getElementById("new-plate-btn");
   const plateContainer = document.getElementById("plate-container");
   const resetFiltersBtn = document.getElementById("reset-filters-btn");
   const filterStatus = document.getElementById("filter-status");
   const filterPanel = document.getElementById("filter-panel");
+  const activeFiltersDisplay = document.getElementById("active-filters");
+
+  // Axis display labels with endpoints
+  const axisLabels = {
+    heat: { name: "Heat", min: "mild", max: "spicy" },
+    sweet: { name: "Sweet", min: "bitter", max: "sweet" },
+    zest: { name: "Zest", min: "subtle", max: "bold" },
+    heft: { name: "Heft", min: "light", max: "hearty" },
+  };
 
   const categoryDescriptions = {
     "side-dishes": "Something to know about",
@@ -344,12 +446,12 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
   }
 
   function createPlateItem(item, category, isApproximate = false) {
-    const approximateIndicator = isApproximate 
-      ? `<span class="approximate-indicator" title="Closest match to your filters">~</span>` 
+    const approximateIndicator = isApproximate
+      ? `<span class="approximate-indicator" title="Closest match to your filters">~</span>`
       : "";
-    
+
     return `
-      <div class="plate-display__item ${isApproximate ? 'plate-display__item--approximate' : ''}">
+      <div class="plate-display__item ${isApproximate ? "plate-display__item--approximate" : ""}">
         <div class="plate-display__category-row">
           <a href="/${category}/" class="category-badge category-badge--link">${categoryLabels[category]}${approximateIndicator}</a>
           <span class="plate-display__category-description">${categoryDescriptions[category]}</span>
@@ -364,9 +466,12 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
     const dessertResult = getFilteredRandomItem(allItems.desserts);
     const platesCutleryResult = getFilteredRandomItem(allItems.platesCutlery);
     const drinkResult = getFilteredRandomItem(allItems.drinks);
-    
-    const hasApproximate = !sideDishResult?.exact || !dessertResult?.exact || 
-                           !platesCutleryResult?.exact || !drinkResult?.exact;
+
+    const hasApproximate =
+      !sideDishResult?.exact ||
+      !dessertResult?.exact ||
+      !platesCutleryResult?.exact ||
+      !drinkResult?.exact;
 
     plateContainer.innerHTML = `
       <div class="plate-display">
@@ -376,11 +481,12 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
         ${createPlateItem(drinkResult?.item, "drinks", !drinkResult?.exact)}
       </div>
     `;
-    
+
     // Update filter status
     if (hasActiveFilters()) {
       if (hasApproximate) {
-        filterStatus.textContent = "Some items are approximate matches (marked with ~)";
+        filterStatus.textContent =
+          "Some items are approximate matches (marked with ~)";
         filterStatus.classList.add("filter-status--visible");
       } else {
         filterStatus.textContent = "All items match your flavor profile";
@@ -391,30 +497,30 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
       filterStatus.classList.remove("filter-status--visible");
     }
   }
-  
+
   // ============================================
   // Range Slider Handling
   // ============================================
-  
+
   function initializeSliders() {
     const sliders = document.querySelectorAll("[data-range-slider]");
-    
-    sliders.forEach(slider => {
+
+    sliders.forEach((slider) => {
       const axis = slider.dataset.axis;
       const minInput = slider.querySelector("[data-min-input]");
       const maxInput = slider.querySelector("[data-max-input]");
       const rangeFill = slider.querySelector("[data-range-fill]");
       const valueDisplay = slider.querySelector("[data-value-display]");
       const ticks = slider.querySelectorAll("[data-tick]");
-      
+
       // Initialize with current filter values
       minInput.value = filters[axis][0];
       maxInput.value = filters[axis][1];
-      
+
       function updateSlider() {
         let minVal = parseInt(minInput.value);
         let maxVal = parseInt(maxInput.value);
-        
+
         // Prevent min from exceeding max
         if (minVal > maxVal) {
           if (this === minInput) {
@@ -425,11 +531,11 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
             maxInput.value = maxVal;
           }
         }
-        
+
         // Update filter state
         filters[axis] = [minVal, maxVal];
         userSetFilters.add(axis);
-        
+
         // Update visual range fill
         const min = parseInt(minInput.min);
         const max = parseInt(minInput.max);
@@ -437,7 +543,7 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
         const rightPercent = ((max - maxVal) / (max - min)) * 100;
         rangeFill.style.left = `${leftPercent}%`;
         rangeFill.style.right = `${rightPercent}%`;
-        
+
         // Update value display
         if (minVal === 1 && maxVal === 5) {
           valueDisplay.textContent = "all";
@@ -446,56 +552,58 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
         } else {
           valueDisplay.textContent = `${minVal}-${maxVal}`;
         }
-        
+
         // Update tick highlights
-        ticks.forEach(tick => {
+        ticks.forEach((tick) => {
           const tickVal = parseInt(tick.dataset.tick);
           tick.dataset.inRange = tickVal >= minVal && tickVal <= maxVal;
         });
-        
-        // Sync to URL
+
+        // Sync to URL and update active filters display
         syncFiltersToURL();
+        updateActiveFiltersDisplay();
       }
-      
+
       minInput.addEventListener("input", updateSlider);
       maxInput.addEventListener("input", updateSlider);
-      
+
       // Initialize visual state
       updateSlider.call(minInput);
     });
   }
-  
+
   function resetAllFilters() {
     for (const axis of FLAVOR_AXES) {
       filters[axis] = [...DEFAULT_RANGE];
     }
     userSetFilters.clear();
-    
+
     // Reset slider UI
     const sliders = document.querySelectorAll("[data-range-slider]");
-    sliders.forEach(slider => {
+    sliders.forEach((slider) => {
       const minInput = slider.querySelector("[data-min-input]");
       const maxInput = slider.querySelector("[data-max-input]");
       const rangeFill = slider.querySelector("[data-range-fill]");
       const valueDisplay = slider.querySelector("[data-value-display]");
       const ticks = slider.querySelectorAll("[data-tick]");
-      
+
       minInput.value = 1;
       maxInput.value = 5;
       rangeFill.style.left = "0%";
       rangeFill.style.right = "0%";
       valueDisplay.textContent = "all";
-      
-      ticks.forEach(tick => {
+
+      ticks.forEach((tick) => {
         tick.dataset.inRange = "true";
       });
     });
-    
+
     syncFiltersToURL();
     filterStatus.textContent = "";
     filterStatus.classList.remove("filter-status--visible");
+    updateActiveFiltersDisplay();
   }
-  
+
   // ============================================
   // Event Listeners
   // ============================================
@@ -511,23 +619,26 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
       plateContainer.style.transform = "scale(1)";
     }, 150);
   });
-  
+
   resetFiltersBtn.addEventListener("click", resetAllFilters);
-  
+
   // ============================================
   // Initialize
   // ============================================
-  
+
   // Load filters from URL on page load
   loadFiltersFromURL();
-  
+
   // If filters were loaded from URL, open the filter panel
   if (userSetFilters.size > 0) {
     filterPanel.open = true;
   }
-  
+
   // Initialize slider UI
   initializeSliders();
+
+  // Update active filters display
+  updateActiveFiltersDisplay();
 </script>
 
 <style>
@@ -541,6 +652,14 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
 
   .plate-description {
     max-width: 600px;
+  }
+
+  /* Filter Controls Container */
+  .filter-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
   }
 
   /* Filter Panel */
@@ -565,6 +684,12 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
 
   .filter-panel__toggle::-webkit-details-marker {
     display: none;
+  }
+
+  .filter-panel__toggle:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-md);
   }
 
   .filter-panel__toggle-indicator {
@@ -594,6 +719,92 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
     display: flex;
     justify-content: flex-end;
     margin-top: var(--spacing-md);
+  }
+
+  /* Active Filters Display */
+  .active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-md);
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity var(--transition-normal),
+      visibility var(--transition-normal);
+    min-height: 1.5rem; /* Reserve space to prevent layout shift */
+  }
+
+  .active-filters--visible {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .active-filters__label {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-lighter);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .active-filters__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+
+  :global(.filter-pill) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background-color: var(--secondary-lightest);
+    color: var(--secondary-dark);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border: 1px solid var(--secondary-lighter);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+    margin-right: var(--spacing-md);
+  }
+
+  :global(.filter-pill:last-child) {
+    margin-right: 0;
+  }
+
+  :global(.filter-pill__name),
+  :global(.filter-pill__value) {
+    margin: 0;
+    display: inline;
+  }
+
+  :global(.filter-pill__name) {
+    font-weight: var(--font-weight-medium);
+  }
+
+  :global(.filter-pill__name)::after {
+    content: " ";
+  }
+
+  :global(.filter-pill__value) {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.8;
+    font-weight: var(--font-weight-medium);
+  }
+
+  /* Mobile: Stack active filters above filter panel */
+  @media (max-width: 767px) {
+    .filter-controls {
+      flex-direction: column;
+    }
+
+    .active-filters {
+      order: -1;
+    }
+
+    .filter-panel {
+      order: 0;
+    }
   }
 
   /* Plate Actions */
@@ -634,6 +845,11 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
   .button-secondary:hover {
     background-color: var(--accent);
     color: var(--white);
+  }
+
+  .button-secondary:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   .button-sm {
@@ -677,6 +893,11 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
   .category-link:hover {
     background-color: var(--accent);
     color: var(--white);
+  }
+
+  .category-link:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   /* Approximate match indicator */
@@ -748,6 +969,11 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
     color: var(--accent-darkest);
   }
 
+  :global(.category-badge--link:focus) {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
   :global(.potluck-card-link) {
     display: flex;
     flex-direction: column;
@@ -777,6 +1003,12 @@ const flavorAxes = Object.entries(FLAVOR_AXES) as [string, { label: string; minL
     transform: translateY(-4px);
     border-color: var(--accent);
     box-shadow: var(--shadow-md);
+  }
+
+  :global(.potluck-card-link:focus) {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-lg);
   }
 
   :global(.potluck-card__header) {

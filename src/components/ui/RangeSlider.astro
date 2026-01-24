@@ -198,12 +198,12 @@ const {
     outline: none;
   }
   
-  .range-slider__input:focus::-webkit-slider-thumb {
-    box-shadow: 0 0 0 3px var(--accent-lightest);
+  .range-slider__input:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid var(--accent);
   }
   
-  .range-slider__input:focus::-moz-range-thumb {
-    box-shadow: 0 0 0 3px var(--accent-lightest);
+  .range-slider__input:focus-visible::-moz-range-thumb {
+    outline: 2px solid var(--accent);
   }
   
   .range-slider__ticks {
