@@ -153,7 +153,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--spacing-md);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-2xl);
   }
 
   .filter-status {

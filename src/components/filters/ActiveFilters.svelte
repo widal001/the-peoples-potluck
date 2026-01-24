@@ -8,25 +8,27 @@
 
 <dl
   class="active-filters"
-  class:active-filters--hidden={!$hasActiveFilters}
   aria-live="polite"
   aria-label="Currently active flavor profile filters"
-  aria-hidden={!$hasActiveFilters}
 >
   <span class="active-filters__label">Active filters:</span>
-  <div role="list" class="active-filters__list">
-    {#each activeFilters as filter}
-      <div class="filter-pill" role="listitem">
-        <dt class="filter-pill__name">{filter.label}</dt>
-        <dd
-          class="filter-pill__value"
-          aria-label="{filter.label} filter {filter.rangeDescription}"
-        >
-          {filter.rangeText}
-        </dd>
-      </div>
-    {/each}
-  </div>
+  {#if $hasActiveFilters}
+    <div role="list" class="active-filters__list">
+      {#each activeFilters as filter}
+        <div class="filter-pill" role="listitem">
+          <dt class="filter-pill__name">{filter.label}</dt>
+          <dd
+            class="filter-pill__value"
+            aria-label="{filter.label} filter {filter.rangeDescription}"
+          >
+            {filter.rangeText}
+          </dd>
+        </div>
+      {/each}
+    </div>
+  {:else}
+    <span class="active-filters__none">None</span>
+  {/if}
 </dl>
 
 <style>
@@ -34,21 +36,21 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    min-height: 2.5rem;
     gap: var(--spacing-md);
     margin: 0;
-    min-height: 1.75rem; /* Reserve space when empty */
-    transition: opacity var(--transition-normal);
-  }
-
-  .active-filters--hidden {
-    opacity: 0;
-    pointer-events: none;
   }
 
   .active-filters__label {
     font-size: var(--font-size-sm);
     color: var(--text-color-lighter);
     font-weight: var(--font-weight-medium);
+  }
+
+  .active-filters__none {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-lighter);
+    font-style: italic;
   }
 
   .active-filters__list {
