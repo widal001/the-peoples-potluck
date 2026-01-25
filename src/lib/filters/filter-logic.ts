@@ -210,7 +210,9 @@ export function resolveSlugsToItems(
   // Fill with random from fallback pool if needed
   if (shuffled.length < count && options?.fallbackPool) {
     const usedSlugs = new Set(shuffled.map((item) => item.slug));
-    const remaining = options.fallbackPool.filter((item) => !usedSlugs.has(item.slug));
+    const remaining = options.fallbackPool.filter(
+      (item) => !usedSlugs.has(item.slug),
+    );
     const fill = shuffle(remaining).slice(0, count - shuffled.length);
     return [...shuffled, ...fill];
   }

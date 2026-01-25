@@ -95,7 +95,10 @@ export function getAllCollections(): CollectionConfig[] {
 }
 
 // Helper to build navigation items from collection config
-export function getCollectionNavItems(): Array<{ label: string; href: string }> {
+export function getCollectionNavItems(): Array<{
+  label: string;
+  href: string;
+}> {
   return getAllCollections().map((c) => ({
     label: c.label,
     href: c.path,

@@ -23,17 +23,17 @@ function createPlateStore() {
 
   return {
     subscribe,
-    
+
     // Set the plate items
     setItems: (items: PotluckItem[]) => {
       update((state) => ({ ...state, items }));
     },
-    
+
     // Set refreshing state (for animations)
     setRefreshing: (isRefreshing: boolean) => {
       update((state) => ({ ...state, isRefreshing }));
     },
-    
+
     // Reset to initial state
     reset: () => set(initialState),
   };

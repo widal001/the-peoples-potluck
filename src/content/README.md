@@ -25,6 +25,7 @@ The site uses a "potluck" metaphor to organize different types of resources. Eac
 **Description:** Understand the landscape. History, legislation, and local context that shapes the immigrant experience in Baltimore.
 
 **Subcategories:**
+
 - `history` — Historical context, timelines, how we got here
 - `legislation` — Laws, policies, executive orders
 - `data` — Demographics, statistics, research
@@ -41,6 +42,7 @@ The site uses a "potluck" metaphor to organize different types of resources. Eac
 **Description:** Find your people. Organizations, coalitions, and initiatives doing the work in our community.
 
 **Subcategories:**
+
 - `government` — Government agencies, official programs
 - `nonprofit` — Established nonprofit organizations
 - `coalition` — Networks, coalitions, alliances
@@ -58,6 +60,7 @@ The site uses a "potluck" metaphor to organize different types of resources. Eac
 **Description:** See what's possible. Successes, case studies, and stories that show what community power can do.
 
 **Subcategories:**
+
 - `local` — Baltimore/Maryland successes
 - `elsewhere` — Examples from other places
 - `case-study` — In-depth analysis of what worked
@@ -74,6 +77,7 @@ The site uses a "potluck" metaphor to organize different types of resources. Eac
 **Description:** Name what's missing. Gaps, needs, and ideas that are waiting for support.
 
 **Subcategories:**
+
 - `urgent` — Immediate, pressing needs
 - `ongoing` — Persistent gaps in resources or support
 - `idea` — Proposals and concepts needing support
@@ -91,6 +95,7 @@ The site uses a "potluck" metaphor to organize different types of resources. Eac
 The name "Sips & Bites" reflects that actions can support both Dishes (ongoing initiatives) and Drinks (unmet needs). Both are small, approachable, and satisfying.
 
 **Subcategories (skills-based):**
+
 - `research` — Digging, writing, documenting
 - `outreach` — Calling, canvassing, spreading the word
 - `direct-support` — Accompaniment, translation, driving
@@ -119,7 +124,7 @@ Each content item includes:
 ---
 title: "Required title"
 description: "Required description"
-category: "subcategory-slug"  # From the options above
+category: "subcategory-slug" # From the options above
 tags: ["optional", "array", "of", "tags"]
 icon:
   svg: "icon-name"
@@ -140,7 +145,6 @@ relatedDesserts: []
 relatedDrinks: []
 relatedSettings: []
 ---
-
 Content body in MDX format...
 ```
 
@@ -162,10 +166,10 @@ Example bite that ties everything together:
 title: "Volunteer for ICE Court Watch"
 description: "Observe immigration court proceedings and document what you see."
 category: "direct-support"
-relatedSettings: ["know-your-rights-history"]  # Context to understand first
-relatedDesserts: ["ice-court-watch-success"]   # Example of impact elsewhere
-relatedDishes: ["ice-court-watch"]             # The org running this
-relatedDrinks: ["court-transparency-gap"]      # The need this addresses
+relatedSettings: ["know-your-rights-history"] # Context to understand first
+relatedDesserts: ["ice-court-watch-success"] # Example of impact elsewhere
+relatedDishes: ["ice-court-watch"] # The org running this
+relatedDrinks: ["court-transparency-gap"] # The need this addresses
 ---
 ```
 
@@ -182,6 +186,7 @@ relatedDrinks: ["court-transparency-gap"]      # The need this addresses
 ## Design Notes: Naming Considerations
 
 We aimed for collection names that are:
+
 - Clear about purpose (visitors know why they're going there)
 - Playful but not "too clever" (the metaphor shouldn't require translation)
 - Warm and inviting (aligned with "Make me a plate")
