@@ -242,7 +242,7 @@
   .quiz__nav-button--secondary {
     background-color: transparent;
     color: var(--text-color-default);
-    border: 1px solid var(--border-default);
+    border: var(--border-width-xs) solid var(--border-default);
   }
 
   .quiz__nav-button--secondary:hover:not(:disabled) {

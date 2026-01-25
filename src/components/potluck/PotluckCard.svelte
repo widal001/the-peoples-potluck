@@ -28,7 +28,7 @@
           key,
           value: item.flavor![key]!,
           config: FLAVOR_AXES[key],
-        })
+        }),
       )
     : [];
 </script>
@@ -44,16 +44,23 @@
       {#if item.icon}
         <div
           class="potluck-icon potluck-icon--md"
-          style="--icon-primary: {item.icon.primaryColor}; --icon-secondary: {item.icon.secondaryColor};"
+          style="--icon-primary: {item.icon
+            .primaryColor}; --icon-secondary: {item.icon.secondaryColor};"
           aria-hidden="true"
         ></div>
       {/if}
-      <h3 class="potluck-card__title" class:potluck-card__title--compact={compact}>
+      <h3
+        class="potluck-card__title"
+        class:potluck-card__title--compact={compact}
+      >
         {item.title}
       </h3>
     </div>
 
-    <p class="potluck-card__description" class:potluck-card__description--compact={compact}>
+    <p
+      class="potluck-card__description"
+      class:potluck-card__description--compact={compact}
+    >
       {item.description}
     </p>
 
@@ -115,7 +122,7 @@
     height: 100%;
     padding: var(--spacing-lg);
     background-color: var(--background-default);
-    border: var(--border-width) solid var(--border-default);
+    border: var(--border-width-md) solid var(--border-default);
     border-radius: var(--radius-lg);
     transition:
       transform var(--transition-normal) ease,

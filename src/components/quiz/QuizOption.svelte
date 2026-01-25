@@ -46,7 +46,7 @@
     width: 100%;
     padding: var(--spacing-lg);
     background-color: var(--background-default);
-    border: 2px solid var(--border-default);
+    border: var(--border-width-sm) solid var(--border-default);
     border-radius: var(--radius-lg);
     cursor: pointer;
     text-align: left;
@@ -104,7 +104,7 @@
     flex-shrink: 0;
     width: 1.5rem;
     height: 1.5rem;
-    border: 2px solid var(--border-default);
+    border: var(--border-width-md) solid var(--border-default);
     border-radius: 50%;
     display: flex;
     align-items: center;
