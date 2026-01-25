@@ -1,16 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import QuizResultLoader from "@/components/quiz/QuizResultLoader.svelte";
-import ArchetypeCard from "@/components/quiz/ArchetypeCard.svelte";
-import { AXIS_GROUP_LABELS } from "@/config/quiz";
-import { getAllArchetypes } from "@/lib/quiz";
-
-// Get all archetypes for the browse section
-const allArchetypes = getAllArchetypes();
-
-// Group archetypes by heat (spicy vs mild)
-const spicyProfiles = allArchetypes.filter((a) => a.profile.heat === "high");
-const mildProfiles = allArchetypes.filter((a) => a.profile.heat === "low");
+import ProfilesGrid from "@/components/quiz/ProfilesGrid.astro";
 ---
 
 <Layout
@@ -33,37 +24,7 @@ const mildProfiles = allArchetypes.filter((a) => a.profile.heat === "low");
           </p>
         </header>
 
-        <div class="results-page__group">
-          <h3 class="results-page__group-title">
-            {AXIS_GROUP_LABELS.heat.high}
-            <span class="results-page__group-subtitle">Higher risk tolerance</span>
-          </h3>
-          <div class="results-page__grid">
-            {spicyProfiles.map((archetype) => (
-              <ArchetypeCard 
-                archetype={archetype} 
-                compact={true}
-                client:load
-              />
-            ))}
-          </div>
-        </div>
-
-        <div class="results-page__group">
-          <h3 class="results-page__group-title">
-            {AXIS_GROUP_LABELS.heat.low}
-            <span class="results-page__group-subtitle">Lower risk tolerance</span>
-          </h3>
-          <div class="results-page__grid">
-            {mildProfiles.map((archetype) => (
-              <ArchetypeCard 
-                archetype={archetype} 
-                compact={true}
-                client:load
-              />
-            ))}
-          </div>
-        </div>
+        <ProfilesGrid />
       </div>
 
       <div class="results-page__footer">
@@ -99,36 +60,6 @@ const mildProfiles = allArchetypes.filter((a) => a.profile.heat === "low");
   .results-page__browse-header p {
     max-width: 600px;
     margin: var(--spacing-md) auto 0;
-  }
-
-  .results-page__group {
-    margin-bottom: var(--spacing-2xl);
-  }
-
-  .results-page__group-title {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color-default);
-    margin: 0 0 var(--spacing-lg) 0;
-    padding-bottom: var(--spacing-sm);
-    border-bottom: 2px solid var(--accent);
-    display: flex;
-    align-items: baseline;
-    gap: var(--spacing-sm);
-    flex-wrap: wrap;
-  }
-
-  .results-page__group-subtitle {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-normal);
-    color: var(--text-color-default);
-    opacity: 0.7;
-  }
-
-  .results-page__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--spacing-lg);
   }
 
   .results-page__footer {
