@@ -7,15 +7,30 @@
     syncToURL,
   } from "@/stores/filters";
   import { getRandomFilteredItem } from "@/lib/filters/filter-logic";
-  import type { PotluckItem, PotluckCategory } from "@/lib/filters/types";
+  import type { PotluckItem } from "@/lib/filters/types";
+  import {
+    type PotluckCategory,
+    COLLECTION_KEYS,
+    COLLECTIONS,
+  } from "@/config/collections";
   import PotluckCard from "./PotluckCard.svelte";
 
-  export let sideDishes: PotluckItem[];
+  export let settings: PotluckItem[];
+  export let dishes: PotluckItem[];
   export let desserts: PotluckItem[];
-  export let platesCutlery: PotluckItem[];
   export let drinks: PotluckItem[];
+  export let bites: PotluckItem[];
 
-  // Category metadata
+  // Map prop names to items
+  const itemsByKey: Record<PotluckCategory, PotluckItem[]> = {
+    settings,
+    dishes,
+    desserts,
+    drinks,
+    bites,
+  };
+
+  // Category metadata from centralized config
   interface CategoryConfig {
     key: PotluckCategory;
     items: PotluckItem[];
@@ -23,32 +38,13 @@
     description: string;
   }
 
-  const categories: CategoryConfig[] = [
-    {
-      key: "side-dishes",
-      items: sideDishes,
-      label: "side dish",
-      description: "Something to know about",
-    },
-    {
-      key: "desserts",
-      items: desserts,
-      label: "dessert",
-      description: "Something sweet",
-    },
-    {
-      key: "plates-cutlery",
-      items: platesCutlery,
-      label: "plates & cutlery",
-      description: "Historical context",
-    },
-    {
-      key: "drinks",
-      items: drinks,
-      label: "drink",
-      description: "Something to thirst for",
-    },
-  ];
+  // Build categories from centralized config
+  const categories: CategoryConfig[] = COLLECTION_KEYS.map((key) => ({
+    key,
+    items: itemsByKey[key],
+    label: COLLECTIONS[key].labelSingular,
+    description: COLLECTIONS[key].purpose,
+  }));
 
   // Current plate state
   interface PlateItem {

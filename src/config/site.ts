@@ -1,4 +1,5 @@
 // Shared site configuration
+import { getCollectionNavItems } from "./collections";
 
 export interface NavItem {
   label: string;
@@ -24,16 +25,13 @@ export interface FooterProps {
   contactButtonHref?: string;
 }
 
+// Navigation items - collection links are generated from centralized config
+const collectionLinks = getCollectionNavItems();
+
 export const navItems: (NavItem | NavDropdown)[] = [
   {
     label: "Browse",
-    items: [
-      { label: "Table Settings", href: "/settings/" },
-      { label: "Dishes", href: "/dishes/" },
-      { label: "Desserts", href: "/desserts/" },
-      { label: "Drinks", href: "/drinks/" },
-      { label: "Sips & Bites", href: "/bites/" },
-    ],
+    items: collectionLinks,
   },
   { label: "Make a Plate", href: "/plate/" },
   { label: "About", href: "/about/" },
@@ -47,14 +45,7 @@ export const siteConfig = {
 // Default footer configuration
 export const footerConfig: FooterProps = {
   companyName: siteConfig.companyName,
-  links: [
-    { label: "Table Settings", href: "/settings/" },
-    { label: "Dishes", href: "/dishes/" },
-    { label: "Desserts", href: "/desserts/" },
-    { label: "Drinks", href: "/drinks/" },
-    { label: "Sips & Bites", href: "/bites/" },
-    { label: "About", href: "/about/" },
-  ],
+  links: [...collectionLinks, { label: "About", href: "/about/" }],
   showContactSection: true,
   contactTitle: "Make me a plate",
   contactTagline: "Get a random selection from the potluck.",

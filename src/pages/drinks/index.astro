@@ -5,23 +5,21 @@ import ActiveFilters from "@/components/filters/ActiveFilters.svelte";
 import FilterPanel from "@/components/filters/FilterPanel.svelte";
 import FilterableGrid from "@/components/filters/FilterableGrid.svelte";
 import { prepareCollectionItems } from "@/lib/filters";
+import { COLLECTIONS } from "@/config/collections";
 
+const config = COLLECTIONS.drinks;
 const items = prepareCollectionItems(await getCollection("drinks"));
 ---
 
-<Layout
-  title="Drinks"
-  description="Name what's missing. Gaps, needs, and ideas that are waiting for support."
->
+<Layout title={config.label} description={config.description}>
   <section class="section-padding">
     <div class="container-content">
       <header class="page-header">
-        <h1 class="text-heading-1">Drinks</h1>
-        <p class="page-tagline">What we're thirsting for</p>
+        <h1 class="text-heading-1">{config.label}</h1>
+        <p class="page-tagline">{config.tagline}</p>
         <div class="title-accent"></div>
         <p class="text-body-large page-description">
-          Name what's missing. Gaps, needs, and ideas that are waiting for
-          support.
+          {config.description}
         </p>
       </header>
 

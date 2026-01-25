@@ -3,7 +3,13 @@
  * These functions operate on data and return results without modifying state
  */
 
-import type { FilterState, FilterRange, PotluckItem } from "./types";
+import type {
+  FilterState,
+  FilterRange,
+  FlavorProfile,
+  FlavorAxis,
+  PotluckItem,
+} from "./types";
 import { DEFAULT_RANGE, AXIS_KEYS } from "./types";
 
 /**
@@ -163,4 +169,144 @@ export function getRandomFilteredItem(
     item: getRandomItem(matchingItems),
     isExact,
   };
+}
+
+// ============================================================================
+// Flavor Profile Comparison
+// ============================================================================
+
+/**
+ * Direction and label for a flavor comparison
+ */
+export interface FlavorDiff {
+  axis: FlavorAxis;
+  direction: "up" | "down";
+  label: string;
+  delta: number;
+}
+
+/**
+ * Labels for describing flavor differences
+ */
+const FLAVOR_LABELS: Record<FlavorAxis, { up: string; down: string }> = {
+  heat: { up: "Spicier", down: "Milder" },
+  sweet: { up: "Sweeter", down: "More bitter" },
+  zest: { up: "Bolder", down: "More subtle" },
+  heft: { up: "Heavier commitment", down: "Lighter commitment" },
+};
+
+/**
+ * Compare two flavor profiles and return human-readable differences
+ * @param current - The flavor profile of the current item being viewed
+ * @param related - The flavor profile of the related item
+ * @param threshold - Minimum difference to report (default: 1)
+ * @returns Array of significant flavor differences
+ */
+export function compareFlavorProfiles(
+  current: FlavorProfile | undefined,
+  related: FlavorProfile | undefined,
+  threshold = 1,
+): FlavorDiff[] {
+  const diffs: FlavorDiff[] = [];
+
+  // Default to middle value (3) for missing values
+  const currentFlavor = current || {};
+  const relatedFlavor = related || {};
+
+  for (const axis of AXIS_KEYS) {
+    const currentValue = currentFlavor[axis] ?? 3;
+    const relatedValue = relatedFlavor[axis] ?? 3;
+    const delta = relatedValue - currentValue;
+
+    if (Math.abs(delta) >= threshold) {
+      const direction = delta > 0 ? "up" : "down";
+      diffs.push({
+        axis,
+        direction,
+        label: FLAVOR_LABELS[axis][direction],
+        delta: Math.abs(delta),
+      });
+    }
+  }
+
+  return diffs;
+}
+
+/**
+ * Get a simple summary of how a related item compares to the current item
+ * Returns a short string like "Spicier, lighter" or null if similar
+ */
+export function getFlavorComparisonSummary(
+  current: FlavorProfile | undefined,
+  related: FlavorProfile | undefined,
+  threshold = 1,
+): string | null {
+  const diffs = compareFlavorProfiles(current, related, threshold);
+
+  if (diffs.length === 0) return null;
+
+  // Take the top 2 most significant differences
+  const topDiffs = diffs
+    .sort((a, b) => b.delta - a.delta)
+    .slice(0, 2)
+    .map((d) => d.label.toLowerCase());
+
+  return topDiffs.join(", ");
+}
+
+/**
+ * Group related items by how they compare to the current item's flavor
+ * Useful for displaying "If you want something spicier..." sections
+ */
+export interface FlavorGroupedItems<T> {
+  similar: T[];
+  spicier: T[];
+  milder: T[];
+  bolder: T[];
+  lighter: T[];
+}
+
+export function groupByFlavorComparison<T extends { flavor?: FlavorProfile }>(
+  currentFlavor: FlavorProfile | undefined,
+  items: T[],
+  threshold = 1,
+): FlavorGroupedItems<T> {
+  const groups: FlavorGroupedItems<T> = {
+    similar: [],
+    spicier: [],
+    milder: [],
+    bolder: [],
+    lighter: [],
+  };
+
+  for (const item of items) {
+    const diffs = compareFlavorProfiles(currentFlavor, item.flavor, threshold);
+
+    if (diffs.length === 0) {
+      groups.similar.push(item);
+      continue;
+    }
+
+    // Find the most significant difference
+    const topDiff = diffs.sort((a, b) => b.delta - a.delta)[0];
+
+    switch (topDiff.axis) {
+      case "heat":
+        if (topDiff.direction === "up") groups.spicier.push(item);
+        else groups.milder.push(item);
+        break;
+      case "heft":
+        if (topDiff.direction === "down") groups.lighter.push(item);
+        else groups.similar.push(item); // "heavier" isn't as useful a grouping
+        break;
+      case "zest":
+        if (topDiff.direction === "up") groups.bolder.push(item);
+        else groups.similar.push(item);
+        break;
+      default:
+        groups.similar.push(item);
+    }
+  }
+
+  return groups;
 }

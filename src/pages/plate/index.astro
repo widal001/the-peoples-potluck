@@ -5,6 +5,7 @@ import ActiveFilters from "@/components/filters/ActiveFilters.svelte";
 import FilterPanel from "@/components/filters/FilterPanel.svelte";
 import RandomPlate from "@/components/potluck/RandomPlate.svelte";
 import { collectionEntryToItem } from "@/lib/filters";
+import { getAllCollections } from "@/config/collections";
 
 // Fetch all collections and map to PotluckItem format
 const settings = (await getCollection("settings")).map(collectionEntryToItem);
@@ -12,6 +13,9 @@ const dishes = (await getCollection("dishes")).map(collectionEntryToItem);
 const desserts = (await getCollection("desserts")).map(collectionEntryToItem);
 const drinks = (await getCollection("drinks")).map(collectionEntryToItem);
 const bites = (await getCollection("bites")).map(collectionEntryToItem);
+
+// Get collection links from centralized config
+const collectionLinks = getAllCollections();
 ---
 
 <Layout
@@ -49,11 +53,9 @@ const bites = (await getCollection("bites")).map(collectionEntryToItem);
           Want to explore more? Browse all resources in each category:
         </p>
         <nav class="category-links">
-          <a href="/settings/" class="category-link">Table Settings</a>
-          <a href="/dishes/" class="category-link">Dishes</a>
-          <a href="/desserts/" class="category-link">Desserts</a>
-          <a href="/drinks/" class="category-link">Drinks</a>
-          <a href="/bites/" class="category-link">Sips & Bites</a>
+          {collectionLinks.map((c) => (
+            <a href={c.path} class="category-link">{c.label}</a>
+          ))}
         </nav>
       </div>
     </div>

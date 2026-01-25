@@ -42,13 +42,15 @@ export interface PotluckItem {
   flavor?: FlavorProfile;
 }
 
-// Category types
-export type PotluckCategory =
-  | "settings"
-  | "dishes"
-  | "desserts"
-  | "drinks"
-  | "bites";
+// Category types - re-exported from centralized config
+export type { PotluckCategory } from "@/config/collections";
+export {
+  COLLECTION_KEYS,
+  COLLECTIONS,
+  getCollectionConfig,
+  getAllCollections,
+  getCategoryLabel,
+} from "@/config/collections";
 
 // Axis metadata for UI display
 export interface AxisConfig {

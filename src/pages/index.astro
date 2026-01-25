@@ -4,6 +4,7 @@ import Layout from "@/layouts/Layout.astro";
 import Banner from "@/components/sections/Banner.astro";
 import PotluckScrollSection from "@/components/potluck/PotluckScrollSection.astro";
 import { siteConfig } from "@/config/site";
+import { COLLECTIONS } from "@/config/collections";
 
 // Fetch all collections
 const settings = await getCollection("settings");
@@ -34,39 +35,8 @@ const bannerInfo = {
   ctaHref: "/plate/",
 };
 
-// Category descriptions
-const categoryInfo = {
-  settings: {
-    title: "Table Settings",
-    description:
-      "Understand the landscape. History, legislation, and local context.",
-    href: "/settings/",
-  },
-  dishes: {
-    title: "Dishes",
-    description:
-      "Find your people. Organizations, coalitions, and initiatives doing the work.",
-    href: "/dishes/",
-  },
-  desserts: {
-    title: "Desserts",
-    description:
-      "See what's possible. Successes, case studies, and stories of community power.",
-    href: "/desserts/",
-  },
-  drinks: {
-    title: "Drinks",
-    description:
-      "Name what's missing. Gaps, needs, and ideas waiting for support.",
-    href: "/drinks/",
-  },
-  bites: {
-    title: "Sips & Bites",
-    description:
-      "Do something today. Specific ways to get involved based on your skills.",
-    href: "/bites/",
-  },
-};
+// Use centralized config for category metadata
+const c = COLLECTIONS;
 ---
 
 <Layout title={siteConfig.companyName} description={bannerInfo.tagline}>
@@ -79,51 +49,51 @@ const categoryInfo = {
 
   <!-- Table Settings Section -->
   <PotluckScrollSection
-    title={categoryInfo.settings.title}
-    description={categoryInfo.settings.description}
+    title={c.settings.label}
+    description={c.settings.description}
     items={sortedSettings}
     category="settings"
-    viewAllHref={categoryInfo.settings.href}
+    viewAllHref={c.settings.path}
     maxItems={5}
   />
 
   <!-- Dishes Section -->
   <PotluckScrollSection
-    title={categoryInfo.dishes.title}
-    description={categoryInfo.dishes.description}
+    title={c.dishes.label}
+    description={c.dishes.description}
     items={sortedDishes}
     category="dishes"
-    viewAllHref={categoryInfo.dishes.href}
+    viewAllHref={c.dishes.path}
     maxItems={5}
   />
 
   <!-- Desserts Section -->
   <PotluckScrollSection
-    title={categoryInfo.desserts.title}
-    description={categoryInfo.desserts.description}
+    title={c.desserts.label}
+    description={c.desserts.description}
     items={sortedDesserts}
     category="desserts"
-    viewAllHref={categoryInfo.desserts.href}
+    viewAllHref={c.desserts.path}
     maxItems={5}
   />
 
   <!-- Drinks Section -->
   <PotluckScrollSection
-    title={categoryInfo.drinks.title}
-    description={categoryInfo.drinks.description}
+    title={c.drinks.label}
+    description={c.drinks.description}
     items={sortedDrinks}
     category="drinks"
-    viewAllHref={categoryInfo.drinks.href}
+    viewAllHref={c.drinks.path}
     maxItems={5}
   />
 
   <!-- Sips & Bites Section -->
   <PotluckScrollSection
-    title={categoryInfo.bites.title}
-    description={categoryInfo.bites.description}
+    title={c.bites.label}
+    description={c.bites.description}
     items={sortedBites}
     category="bites"
-    viewAllHref={categoryInfo.bites.href}
+    viewAllHref={c.bites.path}
     maxItems={5}
   />
 
