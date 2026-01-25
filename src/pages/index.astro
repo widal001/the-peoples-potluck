@@ -6,10 +6,11 @@ import PotluckScrollSection from "@/components/potluck/PotluckScrollSection.astr
 import { siteConfig } from "@/config/site";
 
 // Fetch all collections
-const sideDishes = await getCollection("side-dishes");
+const settings = await getCollection("settings");
+const dishes = await getCollection("dishes");
 const desserts = await getCollection("desserts");
-const platesCutlery = await getCollection("plates-cutlery");
 const drinks = await getCollection("drinks");
+const bites = await getCollection("bites");
 
 // Sort each by addedDate, newest first
 const sortByDate = <T extends { data: { addedDate?: string } }>(items: T[]) =>
@@ -19,10 +20,11 @@ const sortByDate = <T extends { data: { addedDate?: string } }>(items: T[]) =>
     return dateB - dateA;
   });
 
-const sortedSideDishes = sortByDate(sideDishes);
+const sortedSettings = sortByDate(settings);
+const sortedDishes = sortByDate(dishes);
 const sortedDesserts = sortByDate(desserts);
-const sortedPlatesCutlery = sortByDate(platesCutlery);
 const sortedDrinks = sortByDate(drinks);
+const sortedBites = sortByDate(bites);
 
 const bannerInfo = {
   tagline: "Come find your place at the table",
@@ -34,29 +36,35 @@ const bannerInfo = {
 
 // Category descriptions
 const categoryInfo = {
-  sideDishes: {
-    title: "Side Dishes",
+  settings: {
+    title: "Table Settings",
     description:
-      "Existing groups, efforts, and projects in Baltimore related to solidarity with immigrants.",
-    href: "/side-dishes/",
+      "Understand the landscape. History, legislation, and local context.",
+    href: "/settings/",
+  },
+  dishes: {
+    title: "Dishes",
+    description:
+      "Find your people. Organizations, coalitions, and initiatives doing the work.",
+    href: "/dishes/",
   },
   desserts: {
     title: "Desserts",
     description:
-      "Sweet things giving hope - efforts, projects, and experiments keeping communities safe.",
+      "See what's possible. Successes, case studies, and stories of community power.",
     href: "/desserts/",
-  },
-  platesCutlery: {
-    title: "Plates & Cutlery",
-    description:
-      "Local historical context of what Baltimore is already carrying.",
-    href: "/plates-cutlery/",
   },
   drinks: {
     title: "Drinks",
     description:
-      "What Baltimore is thirsty for in organizing, mutual aid, and solidarity.",
+      "Name what's missing. Gaps, needs, and ideas waiting for support.",
     href: "/drinks/",
+  },
+  bites: {
+    title: "Sips & Bites",
+    description:
+      "Do something today. Specific ways to get involved based on your skills.",
+    href: "/bites/",
   },
 };
 ---
@@ -69,13 +77,23 @@ const categoryInfo = {
     ctaHref={bannerInfo.ctaHref}
   />
 
-  <!-- Side Dishes Section -->
+  <!-- Table Settings Section -->
   <PotluckScrollSection
-    title={categoryInfo.sideDishes.title}
-    description={categoryInfo.sideDishes.description}
-    items={sortedSideDishes}
-    category="side-dishes"
-    viewAllHref={categoryInfo.sideDishes.href}
+    title={categoryInfo.settings.title}
+    description={categoryInfo.settings.description}
+    items={sortedSettings}
+    category="settings"
+    viewAllHref={categoryInfo.settings.href}
+    maxItems={5}
+  />
+
+  <!-- Dishes Section -->
+  <PotluckScrollSection
+    title={categoryInfo.dishes.title}
+    description={categoryInfo.dishes.description}
+    items={sortedDishes}
+    category="dishes"
+    viewAllHref={categoryInfo.dishes.href}
     maxItems={5}
   />
 
@@ -89,16 +107,6 @@ const categoryInfo = {
     maxItems={5}
   />
 
-  <!-- Plates & Cutlery Section -->
-  <PotluckScrollSection
-    title={categoryInfo.platesCutlery.title}
-    description={categoryInfo.platesCutlery.description}
-    items={sortedPlatesCutlery}
-    category="plates-cutlery"
-    viewAllHref={categoryInfo.platesCutlery.href}
-    maxItems={5}
-  />
-
   <!-- Drinks Section -->
   <PotluckScrollSection
     title={categoryInfo.drinks.title}
@@ -106,6 +114,16 @@ const categoryInfo = {
     items={sortedDrinks}
     category="drinks"
     viewAllHref={categoryInfo.drinks.href}
+    maxItems={5}
+  />
+
+  <!-- Sips & Bites Section -->
+  <PotluckScrollSection
+    title={categoryInfo.bites.title}
+    description={categoryInfo.bites.description}
+    items={sortedBites}
+    category="bites"
+    viewAllHref={categoryInfo.bites.href}
     maxItems={5}
   />
 

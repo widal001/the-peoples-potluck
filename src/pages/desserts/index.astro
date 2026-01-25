@@ -11,18 +11,17 @@ const items = prepareCollectionItems(await getCollection("desserts"));
 
 <Layout
   title="Desserts"
-  description="Sweet things giving hope - efforts, projects, mutual aid initiatives, and experiments keeping communities safe against ICE/policing."
+  description="See what's possible. Successes, case studies, and stories that show what community power can do."
 >
   <section class="section-padding">
     <div class="container-content">
       <header class="page-header">
         <h1 class="text-heading-1">Desserts</h1>
+        <p class="page-tagline">Worth saving room for</p>
         <div class="title-accent"></div>
         <p class="text-body-large page-description">
-          Sweet things giving you hope - efforts, projects, mutual aid
-          initiatives, and other experiments that you've heard of, whether here
-          or elsewhere, related to the possibility of keeping community safe
-          against ICE/policing.
+          See what's possible. Successes, case studies, and stories that show
+          what community power can do.
         </p>
       </header>
 
@@ -44,6 +43,13 @@ const items = prepareCollectionItems(await getCollection("desserts"));
 <style>
   .page-header {
     margin-bottom: var(--spacing-xl);
+  }
+
+  .page-tagline {
+    font-size: var(--font-size-lg);
+    font-style: italic;
+    color: var(--text-color-lighter);
+    margin-bottom: var(--spacing-sm);
   }
 
   .page-description {

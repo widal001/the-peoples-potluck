@@ -9,7 +9,7 @@ import FlavorProfile from "@/components/potluck/FlavorProfile.astro";
 import LinkButton from "@/components/ui/LinkButton.astro";
 
 export async function getStaticPaths() {
-  const items = await getCollection("side-dishes");
+  const items = await getCollection("bites");
   return items.map((item) => ({
     params: { slug: item.slug },
     props: { item },
@@ -17,7 +17,7 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  item: CollectionEntry<"side-dishes">;
+  item: CollectionEntry<"bites">;
 }
 
 const { item } = Astro.props;
@@ -28,13 +28,13 @@ const { Content } = await item.render();
   <article class="section-padding">
     <div class="container-content">
       <nav class="breadcrumb">
-        <a href="/side-dishes/" class="breadcrumb__link">Side Dishes</a>
+        <a href="/bites/" class="breadcrumb__link">Sips & Bites</a>
         <span class="breadcrumb__separator" aria-hidden="true">/</span>
         <span class="breadcrumb__current">{item.data.title}</span>
       </nav>
 
       <header class="detail-header">
-        <CategoryBadge category="side-dishes" href="/side-dishes/" />
+        <CategoryBadge category="bites" href="/bites/" />
 
         <div class="detail-header__main">
           {
@@ -64,11 +64,13 @@ const { Content } = await item.render();
           )
         }
 
-        {item.data.flavor && (
-          <div class="detail-flavor">
-            <FlavorProfile flavor={item.data.flavor} />
-          </div>
-        )}
+        {
+          item.data.flavor && (
+            <div class="detail-flavor">
+              <FlavorProfile flavor={item.data.flavor} />
+            </div>
+          )
+        }
       </header>
 
       <div class="detail-content prose">
@@ -89,8 +91,8 @@ const { Content } = await item.render();
       </footer>
 
       <nav class="detail-nav">
-        <a href="/side-dishes/" class="detail-nav__back">
-          &larr; Back to Side Dishes
+        <a href="/bites/" class="detail-nav__back">
+          &larr; Back to Sips & Bites
         </a>
       </nav>
     </div>

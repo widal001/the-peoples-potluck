@@ -28,10 +28,11 @@ export const navItems: (NavItem | NavDropdown)[] = [
   {
     label: "Browse",
     items: [
-      { label: "Side Dishes", href: "/side-dishes/" },
+      { label: "Table Settings", href: "/settings/" },
+      { label: "Dishes", href: "/dishes/" },
       { label: "Desserts", href: "/desserts/" },
-      { label: "Plates & Cutlery", href: "/plates-cutlery/" },
       { label: "Drinks", href: "/drinks/" },
+      { label: "Sips & Bites", href: "/bites/" },
     ],
   },
   { label: "Make a Plate", href: "/plate/" },
@@ -47,10 +48,11 @@ export const siteConfig = {
 export const footerConfig: FooterProps = {
   companyName: siteConfig.companyName,
   links: [
-    { label: "Side Dishes", href: "/side-dishes/" },
+    { label: "Table Settings", href: "/settings/" },
+    { label: "Dishes", href: "/dishes/" },
     { label: "Desserts", href: "/desserts/" },
-    { label: "Plates & Cutlery", href: "/plates-cutlery/" },
     { label: "Drinks", href: "/drinks/" },
+    { label: "Sips & Bites", href: "/bites/" },
     { label: "About", href: "/about/" },
   ],
   showContactSection: true,

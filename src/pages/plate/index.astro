@@ -7,15 +7,16 @@ import RandomPlate from "@/components/potluck/RandomPlate.svelte";
 import { collectionEntryToItem } from "@/lib/filters";
 
 // Fetch all collections and map to PotluckItem format
-const sideDishes = (await getCollection("side-dishes")).map(collectionEntryToItem);
+const settings = (await getCollection("settings")).map(collectionEntryToItem);
+const dishes = (await getCollection("dishes")).map(collectionEntryToItem);
 const desserts = (await getCollection("desserts")).map(collectionEntryToItem);
-const platesCutlery = (await getCollection("plates-cutlery")).map(collectionEntryToItem);
 const drinks = (await getCollection("drinks")).map(collectionEntryToItem);
+const bites = (await getCollection("bites")).map(collectionEntryToItem);
 ---
 
 <Layout
   title="Your Plate"
-  description="A random selection of resources from the Baltimore ICE Potluck - one side dish, one dessert, some plates & cutlery, and a drink."
+  description="A random selection of resources from the Baltimore ICE Potluck - one from each category to help you learn, connect, get inspired, and take action."
 >
   <section class="plate-page section-padding">
     <div class="container-content">
@@ -35,10 +36,11 @@ const drinks = (await getCollection("drinks")).map(collectionEntryToItem);
       </div>
 
       <RandomPlate
-        {sideDishes}
+        {settings}
+        {dishes}
         {desserts}
-        {platesCutlery}
         {drinks}
+        {bites}
         client:load
       />
 
@@ -47,10 +49,11 @@ const drinks = (await getCollection("drinks")).map(collectionEntryToItem);
           Want to explore more? Browse all resources in each category:
         </p>
         <nav class="category-links">
-          <a href="/side-dishes/" class="category-link">Side Dishes</a>
+          <a href="/settings/" class="category-link">Table Settings</a>
+          <a href="/dishes/" class="category-link">Dishes</a>
           <a href="/desserts/" class="category-link">Desserts</a>
-          <a href="/plates-cutlery/" class="category-link">Plates & Cutlery</a>
           <a href="/drinks/" class="category-link">Drinks</a>
+          <a href="/bites/" class="category-link">Sips & Bites</a>
         </nav>
       </div>
     </div>

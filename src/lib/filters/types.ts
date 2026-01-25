@@ -44,10 +44,11 @@ export interface PotluckItem {
 
 // Category types
 export type PotluckCategory =
-  | "side-dishes"
+  | "settings"
+  | "dishes"
   | "desserts"
-  | "plates-cutlery"
-  | "drinks";
+  | "drinks"
+  | "bites";
 
 // Axis metadata for UI display
 export interface AxisConfig {

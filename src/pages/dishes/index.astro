@@ -6,22 +6,22 @@ import FilterPanel from "@/components/filters/FilterPanel.svelte";
 import FilterableGrid from "@/components/filters/FilterableGrid.svelte";
 import { prepareCollectionItems } from "@/lib/filters";
 
-const items = prepareCollectionItems(await getCollection("plates-cutlery"));
+const items = prepareCollectionItems(await getCollection("dishes"));
 ---
 
 <Layout
-  title="Plates & Cutlery"
-  description="Local historical context of what Baltimore is already carrying related to ICE, policing, and immigration rights."
+  title="Dishes"
+  description="Find your people. Organizations, coalitions, and initiatives doing the work in our community."
 >
   <section class="section-padding">
     <div class="container-content">
       <header class="page-header">
-        <h1 class="text-heading-1">Plates & Cutlery</h1>
+        <h1 class="text-heading-1">Dishes</h1>
+        <p class="page-tagline">What's on the table</p>
         <div class="title-accent"></div>
         <p class="text-body-large page-description">
-          Local historical context of what Baltimore is already carrying related
-          to ICE, policing, and immigration rights. It might be a history of
-          harm, institutions, solidarity, and/or resistance.
+          Find your people. Organizations, coalitions, and initiatives doing the
+          work in our community.
         </p>
       </header>
 
@@ -32,8 +32,8 @@ const items = prepareCollectionItems(await getCollection("plates-cutlery"));
 
       <FilterableGrid
         {items}
-        category="plates-cutlery"
-        emptyMessage="No historical context matches your filters. Try adjusting the flavor profile or reset filters."
+        category="dishes"
+        emptyMessage="No dishes match your filters. Try adjusting the flavor profile or reset filters."
         client:load
       />
     </div>
@@ -43,6 +43,13 @@ const items = prepareCollectionItems(await getCollection("plates-cutlery"));
 <style>
   .page-header {
     margin-bottom: var(--spacing-xl);
+  }
+
+  .page-tagline {
+    font-size: var(--font-size-lg);
+    font-style: italic;
+    color: var(--text-color-lighter);
+    margin-bottom: var(--spacing-sm);
   }
 
   .page-description {

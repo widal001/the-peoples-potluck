@@ -9,7 +9,7 @@ import FlavorProfile from "@/components/potluck/FlavorProfile.astro";
 import LinkButton from "@/components/ui/LinkButton.astro";
 
 export async function getStaticPaths() {
-  const items = await getCollection("plates-cutlery");
+  const items = await getCollection("settings");
   return items.map((item) => ({
     params: { slug: item.slug },
     props: { item },
@@ -17,7 +17,7 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  item: CollectionEntry<"plates-cutlery">;
+  item: CollectionEntry<"settings">;
 }
 
 const { item } = Astro.props;
@@ -28,13 +28,13 @@ const { Content } = await item.render();
   <article class="section-padding">
     <div class="container-content">
       <nav class="breadcrumb">
-        <a href="/plates-cutlery/" class="breadcrumb__link">Plates & Cutlery</a>
+        <a href="/settings/" class="breadcrumb__link">Table Settings</a>
         <span class="breadcrumb__separator" aria-hidden="true">/</span>
         <span class="breadcrumb__current">{item.data.title}</span>
       </nav>
 
       <header class="detail-header">
-        <CategoryBadge category="plates-cutlery" href="/plates-cutlery/" />
+        <CategoryBadge category="settings" href="/settings/" />
 
         <div class="detail-header__main">
           {
@@ -64,11 +64,13 @@ const { Content } = await item.render();
           )
         }
 
-        {item.data.flavor && (
-          <div class="detail-flavor">
-            <FlavorProfile flavor={item.data.flavor} />
-          </div>
-        )}
+        {
+          item.data.flavor && (
+            <div class="detail-flavor">
+              <FlavorProfile flavor={item.data.flavor} />
+            </div>
+          )
+        }
       </header>
 
       <div class="detail-content prose">
@@ -89,8 +91,8 @@ const { Content } = await item.render();
       </footer>
 
       <nav class="detail-nav">
-        <a href="/plates-cutlery/" class="detail-nav__back">
-          &larr; Back to Plates & Cutlery
+        <a href="/settings/" class="detail-nav__back">
+          &larr; Back to Table Settings
         </a>
       </nav>
     </div>
