@@ -1,4 +1,8 @@
 ---
+/**
+ * Dynamic collection index page
+ * Handles: /settings/, /dishes/, /desserts/, /drinks/, /bites/
+ */
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import ActiveFilters from "@/components/filters/ActiveFilters.svelte";
@@ -6,11 +10,29 @@ import FilterPanel from "@/components/filters/FilterPanel.svelte";
 import FilterableGrid from "@/components/filters/FilterableGrid.svelte";
 import SuggestedBites from "@/components/potluck/SuggestedBites.svelte";
 import { prepareCollectionItems, collectionEntryToItem } from "@/lib/filters";
-import { COLLECTIONS } from "@/config/collections";
+import { COLLECTION_KEYS, COLLECTIONS } from "@/config/collections";
+import type { PotluckCategory } from "@/config/collections";
 
-const config = COLLECTIONS.dishes;
-const items = prepareCollectionItems(await getCollection("dishes"));
-const bites = (await getCollection("bites")).map(collectionEntryToItem);
+export async function getStaticPaths() {
+  return COLLECTION_KEYS.map((key) => ({
+    params: { category: key },
+  }));
+}
+
+const { category } = Astro.params as { category: PotluckCategory };
+const config = COLLECTIONS[category];
+
+// Fetch items for this collection
+const items = prepareCollectionItems(await getCollection(category));
+
+// Fetch bites for suggested section (only for non-bites collections)
+const showSuggestedBites = category !== "bites";
+const bites = showSuggestedBites
+  ? (await getCollection("bites")).map(collectionEntryToItem)
+  : [];
+
+// Empty message uses collection label
+const emptyMessage = `No ${config.label.toLowerCase()} match your filters. Try adjusting the flavor profile or reset filters.`;
 ---
 
 <Layout title={config.label} description={config.description}>
@@ -30,14 +52,9 @@ const bites = (await getCollection("bites")).map(collectionEntryToItem);
         <FilterPanel client:load />
       </div>
 
-      <FilterableGrid
-        {items}
-        category="dishes"
-        emptyMessage="No dishes match your filters. Try adjusting the flavor profile or reset filters."
-        client:load
-      />
+      <FilterableGrid {items} {category} {emptyMessage} client:load />
 
-      <SuggestedBites {bites} client:load />
+      {showSuggestedBites && <SuggestedBites {bites} client:load />}
     </div>
   </section>
 </Layout>

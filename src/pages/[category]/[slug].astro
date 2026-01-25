@@ -1,4 +1,8 @@
 ---
+/**
+ * Dynamic collection detail page
+ * Handles: /settings/[slug], /dishes/[slug], /desserts/[slug], /drinks/[slug], /bites/[slug]
+ */
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
@@ -7,34 +11,59 @@ import TagPill from "@/components/potluck/TagPill.astro";
 import PotluckIcon from "@/components/potluck/PotluckIcon.astro";
 import FlavorProfile from "@/components/potluck/FlavorProfile.astro";
 import LinkButton from "@/components/ui/LinkButton.astro";
+import SuggestedBites from "@/components/potluck/SuggestedBites.svelte";
+import { collectionEntryToItem } from "@/lib/filters";
+import {
+  COLLECTION_KEYS,
+  COLLECTIONS,
+  type PotluckCategory,
+} from "@/config/collections";
+
+// Type for any potluck collection entry
+type PotluckEntry = CollectionEntry<PotluckCategory>;
 
 export async function getStaticPaths() {
-  const items = await getCollection("bites");
-  return items.map((item) => ({
-    params: { slug: item.slug },
-    props: { item },
-  }));
+  // Generate paths for all items in all collections
+  const paths = await Promise.all(
+    COLLECTION_KEYS.map(async (category) => {
+      const items = await getCollection(category);
+      return items.map((item) => ({
+        params: { category, slug: item.slug },
+        props: { item, category },
+      }));
+    })
+  );
+
+  return paths.flat();
 }
 
 interface Props {
-  item: CollectionEntry<"bites">;
+  item: PotluckEntry;
+  category: PotluckCategory;
 }
 
-const { item } = Astro.props;
+const { item, category } = Astro.props;
+const config = COLLECTIONS[category];
 const { Content } = await item.render();
+
+// Get bites for suggested section (only for non-bites collections)
+const showSuggestedBites = category !== "bites";
+const allBites = showSuggestedBites
+  ? (await getCollection("bites")).map(collectionEntryToItem)
+  : [];
 ---
 
 <Layout title={item.data.title} description={item.data.description}>
   <article class="section-padding">
     <div class="container-content">
       <nav class="breadcrumb">
-        <a href="/bites/" class="breadcrumb__link">Sips & Bites</a>
+        <a href={config.path} class="breadcrumb__link">{config.label}</a>
         <span class="breadcrumb__separator" aria-hidden="true">/</span>
         <span class="breadcrumb__current">{item.data.title}</span>
       </nav>
 
       <header class="detail-header">
-        <CategoryBadge category="bites" href="/bites/" />
+        <CategoryBadge {category} href={config.path} />
 
         <div class="detail-header__main">
           {
@@ -91,10 +120,16 @@ const { Content } = await item.render();
       </footer>
 
       <nav class="detail-nav">
-        <a href="/bites/" class="detail-nav__back">
-          &larr; Back to Sips & Bites
+        <a href={config.path} class="detail-nav__back">
+          &larr; Back to {config.label}
         </a>
       </nav>
+
+      {
+        showSuggestedBites && (
+          <SuggestedBites bites={allBites} maxItems={3} client:load />
+        )
+      }
     </div>
   </article>
 </Layout>
@@ -197,8 +232,7 @@ const { Content } = await item.render();
   }
 
   .detail-nav {
-    padding-top: var(--spacing-xl);
-    border-top: 1px solid var(--border-default);
+    margin-top: var(--spacing-2xl);
   }
 
   .detail-nav__back {
