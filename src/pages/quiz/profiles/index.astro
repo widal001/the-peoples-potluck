@@ -1,15 +1,62 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import ArchetypeCard from "@/components/quiz/ArchetypeCard.svelte";
-import { AXIS_GROUP_LABELS } from "@/config/quiz";
 import { getAllArchetypes } from "@/lib/quiz";
 
 // Get all archetypes
 const allArchetypes = getAllArchetypes();
 
-// Group by heat (main grouping)
-const spicyProfiles = allArchetypes.filter((a) => a.profile.heat === "high");
-const mildProfiles = allArchetypes.filter((a) => a.profile.heat === "low");
+// Sort for 2x2 grid: rows = Heft (Hearty top, Light bottom), cols = Zest (Bold left, Subtle right)
+// Order: [Bold+Hearty, Subtle+Hearty, Bold+Light, Subtle+Light]
+const sortForGrid = (profiles: typeof allArchetypes) => {
+  const order = [
+    { zest: "high", heft: "high" }, // top-left: Bold + Hearty
+    { zest: "low", heft: "high" },  // top-right: Subtle + Hearty
+    { zest: "high", heft: "low" },  // bottom-left: Bold + Light
+    { zest: "low", heft: "low" },   // bottom-right: Subtle + Light
+  ];
+  return order
+    .map((o) => profiles.find((p) => p.profile.zest === o.zest && p.profile.heft === o.heft))
+    .filter((p): p is typeof profiles[number] => p !== undefined);
+};
+
+// Define quadrants: Heat × Sweet combinations
+const quadrants = [
+  {
+    heat: "high" as const,
+    sweet: "high" as const,
+    title: "Hopeful & Bold",
+    subtitle: "Motivated by hope, willing to take risks",
+  },
+  {
+    heat: "low" as const,
+    sweet: "high" as const,
+    title: "Hopeful & Safe",
+    subtitle: "Motivated by hope, prefer established channels",
+  },
+  {
+    heat: "high" as const,
+    sweet: "low" as const,
+    title: "Driven & Bold",
+    subtitle: "Motivated by urgency, willing to take risks",
+  },
+  {
+    heat: "low" as const,
+    sweet: "low" as const,
+    title: "Driven & Safe",
+    subtitle: "Motivated by urgency, prefer established channels",
+  },
+];
+
+// Build the quadrant data
+const quadrantData = quadrants.map((q) => ({
+  ...q,
+  profiles: sortForGrid(
+    allArchetypes.filter(
+      (a) => a.profile.heat === q.heat && a.profile.sweet === q.sweet
+    )
+  ),
+}));
 ---
 
 <Layout
@@ -63,40 +110,26 @@ const mildProfiles = allArchetypes.filter((a) => a.profile.heat === "low");
         </div>
       </div>
 
-      <div class="profiles-page__group">
-        <h2 class="profiles-page__group-title">
-          {AXIS_GROUP_LABELS.heat.high}
-          <span class="profiles-page__group-subtitle">
-            Willing to take controversial stances and challenge authority directly
-          </span>
-        </h2>
-        <div class="profiles-page__grid">
-          {spicyProfiles.map((archetype) => (
-            <ArchetypeCard 
-              archetype={archetype} 
-              compact={true}
-              client:load
-            />
-          ))}
-        </div>
-      </div>
-
-      <div class="profiles-page__group">
-        <h2 class="profiles-page__group-title">
-          {AXIS_GROUP_LABELS.heat.low}
-          <span class="profiles-page__group-subtitle">
-            Prefer safer approaches and working within established channels
-          </span>
-        </h2>
-        <div class="profiles-page__grid">
-          {mildProfiles.map((archetype) => (
-            <ArchetypeCard 
-              archetype={archetype} 
-              compact={true}
-              client:load
-            />
-          ))}
-        </div>
+      <div class="profiles-page__sections">
+        {quadrantData.map((quadrant) => (
+          <div class="profiles-page__quadrant">
+            <h2 class="profiles-page__quadrant-title">
+              {quadrant.title}
+              <span class="profiles-page__quadrant-subtitle">
+                {quadrant.subtitle}
+              </span>
+            </h2>
+            <div class="profiles-page__quadrant-grid">
+              {quadrant.profiles.map((archetype) => (
+                <ArchetypeCard 
+                  archetype={archetype} 
+                  compact={true}
+                  client:load
+                />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   </section>
@@ -194,11 +227,19 @@ const mildProfiles = allArchetypes.filter((a) => a.profile.heat === "low");
     opacity: 0.7;
   }
 
-  .profiles-page__group {
-    margin-bottom: var(--spacing-3xl);
+  .profiles-page__sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3xl);
   }
 
-  .profiles-page__group-title {
+  .profiles-page__quadrant {
+    background-color: var(--surface-lighter);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+  }
+
+  .profiles-page__quadrant-title {
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-semibold);
     color: var(--text-color-default);
@@ -207,7 +248,7 @@ const mildProfiles = allArchetypes.filter((a) => a.profile.heat === "low");
     border-bottom: 2px solid var(--accent);
   }
 
-  .profiles-page__group-subtitle {
+  .profiles-page__quadrant-subtitle {
     display: block;
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-normal);
@@ -216,9 +257,15 @@ const mildProfiles = allArchetypes.filter((a) => a.profile.heat === "low");
     margin-top: var(--spacing-xs);
   }
 
-  .profiles-page__grid {
+  .profiles-page__quadrant-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  @media (max-width: 600px) {
+    .profiles-page__quadrant-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

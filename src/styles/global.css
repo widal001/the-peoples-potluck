@@ -262,6 +262,11 @@ h6 {
   max-width: var(--container-max-width);
 }
 
+.container-wide {
+  margin-inline: auto;
+  max-width: 1400px;
+}
+
 .section-padding {
   padding-block: var(--section-padding-y);
   padding-inline: var(--section-padding-x);
