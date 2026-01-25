@@ -6,6 +6,11 @@
    Foundation styles for consistent rendering across browsers
    ======================================================= */
 
+html {
+  /* Prevent layout shift when scrollbar appears/disappears between pages */
+  scrollbar-gutter: stable;
+}
+
 body {
   background-color: var(--background-default);
   color: var(--text-color-default);
