@@ -36,6 +36,11 @@ export {
   getFilteredOrClosest,
   getRandomItem,
   getRandomFilteredItem,
+  // Random selection utilities
+  shuffle,
+  getRandomItems,
+  getRandomFilteredItems,
+  resolveSlugsToItems,
   // Flavor comparison
   compareFlavorProfiles,
   getFlavorComparisonSummary,

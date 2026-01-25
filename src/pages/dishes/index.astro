@@ -4,11 +4,13 @@ import Layout from "@/layouts/Layout.astro";
 import ActiveFilters from "@/components/filters/ActiveFilters.svelte";
 import FilterPanel from "@/components/filters/FilterPanel.svelte";
 import FilterableGrid from "@/components/filters/FilterableGrid.svelte";
-import { prepareCollectionItems } from "@/lib/filters";
+import SuggestedBites from "@/components/potluck/SuggestedBites.svelte";
+import { prepareCollectionItems, collectionEntryToItem } from "@/lib/filters";
 import { COLLECTIONS } from "@/config/collections";
 
 const config = COLLECTIONS.dishes;
 const items = prepareCollectionItems(await getCollection("dishes"));
+const bites = (await getCollection("bites")).map(collectionEntryToItem);
 ---
 
 <Layout title={config.label} description={config.description}>
@@ -34,6 +36,8 @@ const items = prepareCollectionItems(await getCollection("dishes"));
         emptyMessage="No dishes match your filters. Try adjusting the flavor profile or reset filters."
         client:load
       />
+
+      <SuggestedBites {bites} client:load />
     </div>
   </section>
 </Layout>

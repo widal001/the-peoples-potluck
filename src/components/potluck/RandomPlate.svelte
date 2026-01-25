@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * RandomPlate - Generates a random selection from each collection category
+   * 
+   * Uses plateStore to share state with SuggestedBites component.
+   * Filters can be applied to influence which items are selected.
+   */
   import { onMount } from "svelte";
   import {
     filterState,
@@ -6,47 +12,47 @@
     initFromURL,
     syncToURL,
   } from "@/stores/filters";
+  import { plateStore } from "@/stores/plate";
   import { getRandomFilteredItem } from "@/lib/filters/filter-logic";
   import type { PotluckItem } from "@/lib/filters/types";
   import {
     type PotluckCategory,
-    COLLECTION_KEYS,
+    type PlateCategory,
+    PLATE_COLLECTION_KEYS,
     COLLECTIONS,
   } from "@/config/collections";
   import PotluckCard from "./PotluckCard.svelte";
 
+  // Props: collections to select from
   export let settings: PotluckItem[];
   export let dishes: PotluckItem[];
   export let desserts: PotluckItem[];
   export let drinks: PotluckItem[];
-  export let bites: PotluckItem[];
 
   // Map prop names to items
-  const itemsByKey: Record<PotluckCategory, PotluckItem[]> = {
+  const itemsByKey: Record<PlateCategory, PotluckItem[]> = {
     settings,
     dishes,
     desserts,
     drinks,
-    bites,
   };
 
   // Category metadata from centralized config
   interface CategoryConfig {
-    key: PotluckCategory;
+    key: PlateCategory;
     items: PotluckItem[];
     label: string;
     description: string;
   }
 
-  // Build categories from centralized config
-  const categories: CategoryConfig[] = COLLECTION_KEYS.map((key) => ({
+  const categories: CategoryConfig[] = PLATE_COLLECTION_KEYS.map((key) => ({
     key,
     items: itemsByKey[key],
     label: COLLECTIONS[key].labelSingular,
     description: COLLECTIONS[key].purpose,
   }));
 
-  // Current plate state
+  // Plate item with match status
   interface PlateItem {
     key: PotluckCategory;
     label: string;
@@ -61,6 +67,7 @@
   // Generate a new plate based on current filters
   function generatePlate() {
     const currentFilters = $filterState;
+    
     plate = categories.map((cat) => {
       const result = getRandomFilteredItem(cat.items, currentFilters);
       return {
@@ -71,6 +78,12 @@
         isExact: result.isExact,
       };
     });
+
+    // Update the store with selected items (for SuggestedBites to use)
+    const selectedItems = plate
+      .map((p) => p.item)
+      .filter((item): item is PotluckItem => item !== null);
+    plateStore.setItems(selectedItems);
   }
 
   // Check if any items are approximate matches
@@ -79,8 +92,6 @@
   // Initialize on mount
   onMount(() => {
     initFromURL();
-
-    // Generate initial plate
     generatePlate();
 
     // Subscribe to filter changes for URL sync
@@ -94,10 +105,12 @@
   // Regenerate plate when button clicked with animation
   function handleNewPlate() {
     isRefreshing = true;
-    // Wait for fade out, then update and fade back in
+    plateStore.setRefreshing(true);
+    
     setTimeout(() => {
       generatePlate();
       isRefreshing = false;
+      plateStore.setRefreshing(false);
     }, 150);
   }
 </script>
@@ -107,7 +120,7 @@
     Make me a new plate
   </button>
   {#if $hasActiveFilters}
-    <p class="filter-status filter-status--visible" aria-live="polite">
+    <p class="filter-status" aria-live="polite">
       {#if hasApproximate}
         Some items are approximate matches (marked with ~)
       {:else}
@@ -117,26 +130,26 @@
   {/if}
 </div>
 
-<div class="plate-display" class:plate-display--refreshing={isRefreshing}>
+<div class="plate-grid" class:plate-grid--refreshing={isRefreshing}>
   {#each plate as { key, label, description, item, isExact }}
     <div
-      class="plate-display__item"
-      class:plate-display__item--approximate={item && !isExact}
+      class="plate-grid__item"
+      class:plate-grid__item--approximate={item && !isExact}
     >
-      <div class="plate-display__category-row">
-        <a href="/{key}/" class="category-badge category-badge--link">
+      <div class="plate-grid__category-row">
+        <a href="/{key}/" class="category-badge">
           {label}
           {#if item && !isExact}
             <span class="approximate-indicator" title="Closest match to your filters">~</span>
           {/if}
         </a>
-        <span class="plate-display__category-description">{description}</span>
+        <span class="plate-grid__category-purpose">{description}</span>
       </div>
       {#if item}
         <PotluckCard {item} category={key} />
       {:else}
-        <div class="plate-display__empty">
-          <p class="text-body-large">No items in this category yet.</p>
+        <div class="plate-grid__empty">
+          <p>No items in this category yet.</p>
         </div>
       {/if}
     </div>
@@ -159,58 +172,58 @@
     margin: 0;
   }
 
-  .plate-display {
+  .plate-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: 1fr;
     gap: var(--spacing-xl);
     transition:
       opacity 150ms ease-out,
       transform 150ms ease-out;
   }
 
-  .plate-display--refreshing {
+  .plate-grid--refreshing {
     opacity: 0.5;
     transform: scale(0.98);
   }
 
   @media (min-width: 768px) {
-    .plate-display {
+    .plate-grid {
       grid-template-columns: repeat(2, 1fr);
     }
   }
 
-  .plate-display__item {
+  .plate-grid__item {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
   }
 
-  .plate-display__item--approximate {
-    /* Subtle visual indicator for approximate matches */
+  .plate-grid__item--approximate {
     opacity: 0.95;
   }
 
-  .plate-display__category-row {
+  .plate-grid__category-row {
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
     flex-wrap: wrap;
   }
 
-  .plate-display__category-description {
+  .plate-grid__category-purpose {
     font-size: var(--font-size-sm);
     color: var(--text-color-lighter);
     font-style: italic;
   }
 
-  .plate-display__empty {
+  .plate-grid__empty {
     padding: var(--spacing-xl);
     background-color: var(--secondary-lightest);
     border-radius: var(--radius-lg);
     text-align: center;
+    color: var(--text-color-light);
   }
 
-  /* Category badge styles */
+  /* Category badge */
   .category-badge {
     display: inline-flex;
     align-items: center;
@@ -222,21 +235,18 @@
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     text-transform: capitalize;
-  }
-
-  .category-badge--link {
     text-decoration: none;
     transition:
       background-color var(--transition-normal),
       color var(--transition-normal);
   }
 
-  .category-badge--link:hover {
+  .category-badge:hover {
     background-color: var(--secondary-lighter);
     color: var(--secondary-darkest);
   }
 
-  .category-badge--link:focus {
+  .category-badge:focus {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
@@ -246,7 +256,7 @@
     font-weight: var(--font-weight-bold);
   }
 
-  /* Button styles */
+  /* Button */
   .button-primary {
     display: inline-flex;
     align-items: center;
@@ -275,11 +285,5 @@
 
   .button-primary:active {
     transform: scale(0.98);
-  }
-
-  .text-body-large {
-    font-size: var(--font-size-lg);
-    line-height: 1.6;
-    color: var(--text-color-default);
   }
 </style>

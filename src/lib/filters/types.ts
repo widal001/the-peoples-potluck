@@ -40,6 +40,8 @@ export interface PotluckItem {
   tags?: string[];
   icon?: PotluckIcon;
   flavor?: FlavorProfile;
+  // Related content slugs (optional, used for finding related bites)
+  relatedBites?: string[];
 }
 
 // Category types - re-exported from centralized config

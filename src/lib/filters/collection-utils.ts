@@ -18,6 +18,7 @@ export function collectionEntryToItem(
     tags: entry.data.tags || [],
     icon: entry.data.icon,
     flavor: entry.data.flavor || {},
+    relatedBites: entry.data.relatedBites || [],
   };
 }
 

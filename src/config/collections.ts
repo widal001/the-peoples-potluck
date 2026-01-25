@@ -106,3 +106,23 @@ export function getCollectionNavItems(): Array<{ label: string; href: string }> 
 export function getCategoryLabel(key: PotluckCategory): string {
   return COLLECTIONS[key]?.labelSingular || key;
 }
+
+// Main plate collections (what goes on "your plate")
+export const PLATE_COLLECTION_KEYS = [
+  "settings",
+  "dishes",
+  "desserts",
+  "drinks",
+] as const;
+
+export type PlateCategory = (typeof PLATE_COLLECTION_KEYS)[number];
+
+// Helper to get only plate collections (excludes bites)
+export function getPlateCollections(): CollectionConfig[] {
+  return PLATE_COLLECTION_KEYS.map((key) => COLLECTIONS[key]);
+}
+
+// Helper to get only the bites collection config
+export function getBitesConfig(): CollectionConfig {
+  return COLLECTIONS.bites;
+}

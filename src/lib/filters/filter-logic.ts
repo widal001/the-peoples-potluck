@@ -149,6 +149,76 @@ export function getRandomItem<T>(arr: T[]): T | null {
 }
 
 /**
+ * Shuffle an array using Fisher-Yates algorithm
+ * Returns a new array, does not mutate the original
+ */
+export function shuffle<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
+ * Get N random items from an array
+ * Returns up to `count` items, shuffled
+ */
+export function getRandomItems<T>(items: T[], count: number): T[] {
+  return shuffle(items).slice(0, count);
+}
+
+/**
+ * Get N random items that match the given filters
+ * Falls back to closest matches if not enough exact matches exist
+ */
+export function getRandomFilteredItems(
+  items: PotluckItem[],
+  filters: FilterState,
+  count: number,
+): PotluckItem[] {
+  const { items: filtered } = getFilteredOrClosest(items, filters);
+  return getRandomItems(filtered, count);
+}
+
+/**
+ * Resolve an array of slugs to items, using a lookup map
+ * Optionally fill with random items from a fallback pool if not enough found
+ */
+export function resolveSlugsToItems(
+  slugs: Iterable<string>,
+  itemsBySlug: Map<string, PotluckItem>,
+  options?: {
+    count?: number;
+    fallbackPool?: PotluckItem[];
+  },
+): PotluckItem[] {
+  const resolved: PotluckItem[] = [];
+  for (const slug of slugs) {
+    const item = itemsBySlug.get(slug);
+    if (item) resolved.push(item);
+  }
+
+  const count = options?.count;
+  if (count === undefined) {
+    return shuffle(resolved);
+  }
+
+  const shuffled = shuffle(resolved).slice(0, count);
+
+  // Fill with random from fallback pool if needed
+  if (shuffled.length < count && options?.fallbackPool) {
+    const usedSlugs = new Set(shuffled.map((item) => item.slug));
+    const remaining = options.fallbackPool.filter((item) => !usedSlugs.has(item.slug));
+    const fill = shuffle(remaining).slice(0, count - shuffled.length);
+    return [...shuffled, ...fill];
+  }
+
+  return shuffled;
+}
+
+/**
  * Get a random item from filtered results, with closest-match fallback
  * Used by the plate page for random selection
  */

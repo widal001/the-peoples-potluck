@@ -4,6 +4,7 @@ import Layout from "@/layouts/Layout.astro";
 import ActiveFilters from "@/components/filters/ActiveFilters.svelte";
 import FilterPanel from "@/components/filters/FilterPanel.svelte";
 import RandomPlate from "@/components/potluck/RandomPlate.svelte";
+import SuggestedBites from "@/components/potluck/SuggestedBites.svelte";
 import { collectionEntryToItem } from "@/lib/filters";
 import { getAllCollections } from "@/config/collections";
 
@@ -20,7 +21,7 @@ const collectionLinks = getAllCollections();
 
 <Layout
   title="Your Plate"
-  description="A random selection of resources from the Baltimore ICE Potluck - one from each category to help you learn, connect, get inspired, and take action."
+  description="A random selection of resources from the Baltimore ICE Potluck to help you learn, connect, get inspired, and take action."
 >
   <section class="plate-page section-padding">
     <div class="container-content">
@@ -28,9 +29,9 @@ const collectionLinks = getAllCollections();
         <h1 class="text-heading-1">Your Plate</h1>
         <div class="title-accent"></div>
         <p class="text-body-large plate-description">
-          Here's a random selection from the potluck—one resource from each
-          category. Use the flavor sliders to adjust what kind of resources
-          you're looking for, then click the button to get a new combination.
+          Here's a random selection from the potluck—something to learn, a way
+          to connect, inspiration, a need to address, plus a few bite-sized
+          actions. Use the flavor sliders to adjust what resonates with you.
         </p>
       </header>
 
@@ -44,7 +45,12 @@ const collectionLinks = getAllCollections();
         {dishes}
         {desserts}
         {drinks}
+        client:load
+      />
+
+      <SuggestedBites
         {bites}
+        usePlateStore={true}
         client:load
       />
 
