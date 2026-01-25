@@ -30,18 +30,37 @@
   let displayedBites: PotluckItem[] = [];
   let isRefreshing = false;
 
-  // In plate mode, subscribe to plateStore changes
+  // Counter to force re-computation when shuffle is clicked
+  let shuffleCounter = 0;
+
+  // In plate mode, subscribe to plateStore changes and shuffleCounter
   $: if (usePlateStore) {
-    isRefreshing = $plateStore.isRefreshing;
+    // Reference shuffleCounter to trigger reactivity on shuffle
+    shuffleCounter;
+    // Only sync refreshing state from plateStore when not doing local shuffle
+    if ($plateStore.isRefreshing) {
+      isRefreshing = true;
+    }
     displayedBites = resolveSlugsToItems($relatedBiteSlugs, bitesBySlug, {
       count: maxItems,
       fallbackPool: bites,
     });
   }
 
-  // In collection mode, subscribe to filterState changes
+  // In collection mode, subscribe to filterState changes and shuffleCounter
   $: if (!usePlateStore) {
+    // Reference shuffleCounter to trigger reactivity on shuffle
+    shuffleCounter;
     displayedBites = getRandomFilteredItems(bites, $filterState, maxItems);
+  }
+
+  // Handle shuffle button click
+  function handleShuffle() {
+    isRefreshing = true;
+    setTimeout(() => {
+      shuffleCounter++;
+      isRefreshing = false;
+    }, 150);
   }
 
   // Initialize filters from URL on mount (for collection mode)
@@ -53,10 +72,7 @@
 </script>
 
 {#if displayedBites.length > 0}
-  <section
-    class="suggested-bites"
-    class:suggested-bites--refreshing={isRefreshing}
-  >
+  <section class="suggested-bites">
     <div class="suggested-bites__header">
       <h2 class="suggested-bites__title">
         <a href={bitesConfig.path}>{bitesConfig.label}</a>
@@ -67,15 +83,28 @@
       </p>
     </div>
 
-    <div class="suggested-bites__grid" style="--columns: {maxItems}">
+    <div
+      class="suggested-bites__grid"
+      class:suggested-bites__grid--refreshing={isRefreshing}
+      style="--columns: {maxItems}"
+    >
       {#each displayedBites as item (item.slug)}
-        <PotluckCard {item} category="bites" />
+        <PotluckCard {item} category="bites" compact={true} />
       {/each}
     </div>
 
-    <a href={bitesConfig.path} class="suggested-bites__view-all">
-      View all actions →
-    </a>
+    <div class="suggested-bites__footer">
+      <button
+        class="suggested-bites__shuffle"
+        type="button"
+        on:click={handleShuffle}
+      >
+        Shuffle suggestions
+      </button>
+      <a href={bitesConfig.path} class="suggested-bites__view-all">
+        View all actions →
+      </a>
+    </div>
   </section>
 {/if}
 
@@ -84,14 +113,6 @@
     margin-top: var(--spacing-3xl);
     padding-top: var(--spacing-2xl);
     border-top: var(--border-width) solid var(--border-default);
-    transition:
-      opacity 150ms ease-out,
-      transform 150ms ease-out;
-  }
-
-  .suggested-bites--refreshing {
-    opacity: 0.5;
-    transform: scale(0.98);
   }
 
   .suggested-bites__header {
@@ -131,6 +152,14 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--spacing-xl);
+    transition:
+      opacity 150ms ease-out,
+      transform 150ms ease-out;
+  }
+
+  .suggested-bites__grid--refreshing {
+    opacity: 0.5;
+    transform: scale(0.98);
   }
 
   @media (min-width: 768px) {
@@ -139,9 +168,48 @@
     }
   }
 
+  .suggested-bites__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+  }
+
+  .suggested-bites__shuffle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--accent);
+    background-color: transparent;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition:
+      background-color var(--transition-normal),
+      color var(--transition-normal),
+      transform var(--transition-fast);
+  }
+
+  .suggested-bites__shuffle:hover {
+    background-color: var(--accent);
+    color: var(--white);
+  }
+
+  .suggested-bites__shuffle:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .suggested-bites__shuffle:active {
+    transform: scale(0.98);
+  }
+
   .suggested-bites__view-all {
     display: inline-block;
-    margin-top: var(--spacing-lg);
     color: var(--accent);
     font-weight: var(--font-weight-medium);
     text-decoration: none;

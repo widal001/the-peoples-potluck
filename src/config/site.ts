@@ -33,7 +33,7 @@ export const navItems: (NavItem | NavDropdown)[] = [
     label: "Browse",
     items: collectionLinks,
   },
-  { label: "Make a Plate", href: "/plate/" },
+  { label: "Make a plate", href: "/plate/" },
   { label: "About", href: "/about/" },
 ];
 
