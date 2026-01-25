@@ -10,7 +10,7 @@ import {
   calculateAxisCounts,
   calculateResult,
   getScenarioById,
-} from "@/config/quiz";
+} from "@/lib/quiz";
 
 // Storage key for localStorage persistence
 const STORAGE_KEY = "potluck-quiz-state";

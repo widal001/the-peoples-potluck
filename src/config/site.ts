@@ -34,6 +34,7 @@ export const navItems: (NavItem | NavDropdown)[] = [
     items: collectionLinks,
   },
   { label: "Make a plate", href: "/plate/" },
+  { label: "Find your flavor", href: "/quiz/" },
   { label: "About", href: "/about/" },
 ];
 
