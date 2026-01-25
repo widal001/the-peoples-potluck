@@ -1,0 +1,428 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ArchetypeCard from "@/components/quiz/ArchetypeCard.svelte";
+import type { Archetype } from "@/config/quiz/types";
+import { getAllArchetypes, getArchetypeById } from "@/lib/quiz";
+
+// Generate static paths for all archetypes
+export async function getStaticPaths() {
+  const archetypes = getAllArchetypes();
+  return archetypes.map((archetype) => ({
+    params: { slug: archetype.slug },
+    props: { archetype },
+  }));
+}
+
+interface Props {
+  archetype: Archetype;
+}
+
+const { archetype } = Astro.props;
+
+// Get complementary archetypes
+const complementaryArchetypes = archetype.complementaryIds
+  .map((id) => getArchetypeById(id))
+  .filter((a): a is Archetype => a !== undefined);
+
+// Axis display configuration
+const axisConfig = {
+  heat: {
+    label: "Heat",
+    highLabel: "Spicy",
+    lowLabel: "Mild",
+    description: "Risk tolerance — how controversial you're willing to be",
+  },
+  sweet: {
+    label: "Sweet",
+    highLabel: "Sweet",
+    lowLabel: "Bitter",
+    description:
+      "Motivation — driven by hope and joy, or frustration and anger",
+  },
+  zest: {
+    label: "Zest",
+    highLabel: "Bold",
+    lowLabel: "Subtle",
+    description: "Visibility — front lines or behind the scenes",
+  },
+  heft: {
+    label: "Heft",
+    highLabel: "Hearty",
+    lowLabel: "Light",
+    description: "Commitment — sustained engagement or flexible contributions",
+  },
+};
+---
+
+<Layout
+  title={`${archetype.label} | Flavor Profile`}
+  description={archetype.tagline}
+>
+  <section class="profile-page section-padding">
+    <div class="container-content">
+      <header class="profile-page__header">
+        <a href="/quiz/profiles/" class="profile-page__back">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path>
+          </svg>
+          All profiles
+        </a>
+      </header>
+
+      <article class="profile-page__content">
+        <div class="profile-page__hero">
+          <h1 class="profile-page__title">{archetype.label}</h1>
+          <p class="profile-page__tagline">{archetype.tagline}</p>
+        </div>
+
+        <div class="profile-page__profile">
+          {
+            (["heat", "sweet", "zest", "heft"] as const).map((axis) => {
+              const config = axisConfig[axis];
+              const value = archetype.profile[axis];
+              const displayLabel =
+                value === "high" ? config.highLabel : config.lowLabel;
+
+              return (
+                <div class="profile-axis">
+                  <div class="profile-axis__header">
+                    <span class="profile-axis__label">{config.label}</span>
+                    <span
+                      class={`profile-axis__value profile-axis__value--${value}`}
+                    >
+                      {displayLabel}
+                    </span>
+                  </div>
+                  <div class="profile-axis__bar">
+                    <div
+                      class={`profile-axis__fill profile-axis__fill--${value}`}
+                      style={`width: ${value === "high" ? "80" : "30"}%`}
+                    />
+                  </div>
+                  <p class="profile-axis__description">{config.description}</p>
+                </div>
+              );
+            })
+          }
+        </div>
+
+        <div class="profile-page__description">
+          <h2 class="profile-page__section-title">About This Profile</h2>
+          <p class="profile-page__text">{archetype.description}</p>
+        </div>
+
+        {
+          archetype.strengths.length > 0 && (
+            <div class="profile-page__strengths">
+              <h2 class="profile-page__section-title">Strengths</h2>
+              <ul class="profile-page__strengths-list">
+                {archetype.strengths.map((strength) => (
+                  <li>{strength}</li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+
+        {
+          complementaryArchetypes.length > 0 && (
+            <div class="profile-page__complementary">
+              <h2 class="profile-page__section-title">
+                Complementary Profiles
+              </h2>
+              <p class="profile-page__complementary-intro">
+                These profiles pair well with yours, bringing different
+                strengths to collaborative work.
+              </p>
+              <div class="profile-page__complementary-grid">
+                {complementaryArchetypes.map((comp) => (
+                  <ArchetypeCard archetype={comp} compact={true} client:load />
+                ))}
+              </div>
+            </div>
+          )
+        }
+
+        <div class="profile-page__cta">
+          <a
+            href="/quiz/"
+            class="profile-page__button profile-page__button--primary"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
+              ></path>
+            </svg>
+            Take the quiz
+          </a>
+          <a
+            href="/quiz/profiles/"
+            class="profile-page__button profile-page__button--secondary"
+          >
+            Browse all profiles
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .profile-page {
+    min-height: 80vh;
+  }
+
+  .profile-page__header {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .profile-page__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--text-color-default);
+    opacity: 0.7;
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: opacity var(--transition-fast) ease;
+  }
+
+  .profile-page__back:hover {
+    opacity: 1;
+  }
+
+  .profile-page__back svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .profile-page__content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .profile-page__hero {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .profile-page__title {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color-default);
+    margin: 0 0 var(--spacing-sm) 0;
+  }
+
+  .profile-page__tagline {
+    font-size: var(--font-size-xl);
+    color: var(--accent);
+    font-weight: var(--font-weight-medium);
+    margin: 0;
+  }
+
+  .profile-page__profile {
+    display: grid;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-2xl);
+    padding: var(--spacing-xl);
+    background-color: var(--secondary-lightest);
+    border-radius: var(--radius-lg);
+  }
+
+  .profile-axis {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .profile-axis__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .profile-axis__label {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-default);
+  }
+
+  .profile-axis__value {
+    font-weight: var(--font-weight-bold);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .profile-axis__value--high {
+    background-color: var(--accent);
+    color: white;
+  }
+
+  .profile-axis__value--low {
+    background-color: var(--secondary-light);
+    color: var(--text-color-default);
+  }
+
+  .profile-axis__bar {
+    height: 0.5rem;
+    background-color: var(--background-default);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+
+  .profile-axis__fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width var(--transition-normal) ease;
+  }
+
+  .profile-axis__fill--high {
+    background-color: var(--accent);
+  }
+
+  .profile-axis__fill--low {
+    background-color: var(--secondary);
+  }
+
+  .profile-axis__description {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-default);
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  .profile-page__section-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-default);
+    margin: 0 0 var(--spacing-md) 0;
+  }
+
+  .profile-page__description {
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .profile-page__text {
+    font-size: var(--font-size-lg);
+    line-height: 1.7;
+    color: var(--text-color-default);
+    margin: 0;
+  }
+
+  .profile-page__strengths {
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .profile-page__strengths-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--spacing-sm);
+  }
+
+  .profile-page__strengths-list li {
+    font-size: var(--font-size-md);
+    color: var(--text-color-default);
+    padding-left: var(--spacing-lg);
+    position: relative;
+  }
+
+  .profile-page__strengths-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: bold;
+  }
+
+  .profile-page__complementary {
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .profile-page__complementary-intro {
+    font-size: var(--font-size-md);
+    color: var(--text-color-default);
+    opacity: 0.8;
+    margin: 0 0 var(--spacing-lg) 0;
+  }
+
+  .profile-page__complementary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  .profile-page__cta {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    padding-top: var(--spacing-xl);
+    border-top: 1px solid var(--border-default);
+  }
+
+  .profile-page__button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition:
+      background-color var(--transition-fast) ease,
+      transform var(--transition-fast) ease;
+  }
+
+  .profile-page__button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .profile-page__button--primary {
+    background-color: var(--accent);
+    color: white;
+  }
+
+  .profile-page__button--primary:hover {
+    background-color: var(--accent-dark);
+    transform: translateY(-2px);
+  }
+
+  .profile-page__button--secondary {
+    background-color: transparent;
+    color: var(--text-color-default);
+    border: 1px solid var(--border-default);
+  }
+
+  .profile-page__button--secondary:hover {
+    background-color: var(--secondary-lightest);
+  }
+
+  @media (max-width: 640px) {
+    .profile-page__cta {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .profile-page__button {
+      justify-content: center;
+    }
+  }
+</style>

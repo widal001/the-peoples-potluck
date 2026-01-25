@@ -1,0 +1,54 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Quiz from "@/components/quiz/Quiz.svelte";
+---
+
+<Layout
+  title="Take the Quiz | Find Your Flavor"
+  description="Answer 16 questions to discover your engagement flavor profile."
+>
+  <section class="quiz-page section-padding">
+    <div class="container-content">
+      <header class="quiz-page__header">
+        <a href="/quiz/" class="quiz-page__back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Back to intro
+        </a>
+      </header>
+
+      <Quiz client:load />
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .quiz-page {
+    min-height: 80vh;
+  }
+
+  .quiz-page__header {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .quiz-page__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--text-color-default);
+    opacity: 0.7;
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: opacity var(--transition-fast) ease;
+  }
+
+  .quiz-page__back:hover {
+    opacity: 1;
+  }
+
+  .quiz-page__back svg {
+    width: 1rem;
+    height: 1rem;
+  }
+</style>

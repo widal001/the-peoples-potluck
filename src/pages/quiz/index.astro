@@ -1,0 +1,214 @@
+---
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout
+  title="Find Your Flavor"
+  description="Take our quiz to discover your unique engagement flavor profile and find the organizing style that fits you best."
+>
+  <section class="quiz-landing section-padding">
+    <div class="container-content">
+      <header class="quiz-landing__header">
+        <h1 class="text-heading-1">Find Your Flavor</h1>
+        <div class="title-accent"></div>
+        <p class="text-body-large quiz-landing__description">
+          Everyone brings something different to the table. Take this short quiz to discover
+          your unique engagement flavor profile—the organizing style that fits how you want
+          to show up for immigrant communities.
+        </p>
+      </header>
+
+      <div class="quiz-landing__info">
+        <div class="quiz-landing__card">
+          <div class="quiz-landing__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 class="quiz-landing__card-title">16 Questions</h2>
+          <p class="quiz-landing__card-text">
+            Each question presents four organizing activities. Choose the one that resonates most with you.
+          </p>
+        </div>
+
+        <div class="quiz-landing__card">
+          <div class="quiz-landing__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+          </div>
+          <h2 class="quiz-landing__card-title">4 Flavor Dimensions</h2>
+          <p class="quiz-landing__card-text">
+            We'll measure your preferences across Heat (risk), Sweet (motivation), Zest (visibility), and Heft (commitment).
+          </p>
+        </div>
+
+        <div class="quiz-landing__card">
+          <div class="quiz-landing__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+          </div>
+          <h2 class="quiz-landing__card-title">16 Profiles</h2>
+          <p class="quiz-landing__card-text">
+            Discover which of our flavor archetypes—like "Comfort Food" or "Fire Starter"—matches your style.
+          </p>
+        </div>
+      </div>
+
+      <div class="quiz-landing__cta">
+        <a href="/quiz/take/?new=true" class="quiz-landing__button quiz-landing__button--primary">
+          Start the Quiz
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+        <a href="/quiz/profiles/" class="quiz-landing__button quiz-landing__button--secondary">
+          Browse All Profiles
+        </a>
+      </div>
+
+      <div class="quiz-landing__note">
+        <p class="text-body-small">
+          <strong>No wrong answers.</strong> Every engagement style is valuable—we need all kinds
+          of people to build strong communities. This quiz helps you find where your energy 
+          can have the most impact.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .quiz-landing {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+  }
+
+  .quiz-landing__header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto var(--spacing-3xl);
+  }
+
+  .quiz-landing__description {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .quiz-landing__info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-3xl);
+  }
+
+  .quiz-landing__card {
+    background-color: var(--secondary-lightest);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    text-align: center;
+  }
+
+  .quiz-landing__icon {
+    width: 3rem;
+    height: 3rem;
+    margin: 0 auto var(--spacing-md);
+    color: var(--accent);
+  }
+
+  .quiz-landing__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .quiz-landing__card-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-default);
+    margin: 0 0 var(--spacing-sm) 0;
+  }
+
+  .quiz-landing__card-text {
+    font-size: var(--font-size-md);
+    color: var(--text-color-default);
+    opacity: 0.8;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .quiz-landing__cta {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .quiz-landing__button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition:
+      background-color var(--transition-fast) ease,
+      transform var(--transition-fast) ease;
+  }
+
+  .quiz-landing__button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .quiz-landing__button--primary {
+    background-color: var(--accent);
+    color: white;
+  }
+
+  .quiz-landing__button--primary:hover {
+    background-color: var(--accent-dark);
+    transform: translateY(-2px);
+  }
+
+  .quiz-landing__button--secondary {
+    background-color: transparent;
+    color: var(--text-color-default);
+    border: 1px solid var(--border-default);
+  }
+
+  .quiz-landing__button--secondary:hover {
+    background-color: var(--secondary-lightest);
+  }
+
+  .quiz-landing__note {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+    padding: var(--spacing-lg);
+    background-color: var(--background-default);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+  }
+
+  .quiz-landing__note p {
+    margin: 0;
+    color: var(--text-color-default);
+    opacity: 0.8;
+  }
+
+  @media (max-width: 640px) {
+    .quiz-landing__cta {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .quiz-landing__button {
+      justify-content: center;
+    }
+  }
+</style>

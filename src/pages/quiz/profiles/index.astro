@@ -1,0 +1,224 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ArchetypeCard from "@/components/quiz/ArchetypeCard.svelte";
+import { AXIS_GROUP_LABELS } from "@/config/quiz";
+import { getAllArchetypes } from "@/lib/quiz";
+
+// Get all archetypes
+const allArchetypes = getAllArchetypes();
+
+// Group by heat (main grouping)
+const spicyProfiles = allArchetypes.filter((a) => a.profile.heat === "high");
+const mildProfiles = allArchetypes.filter((a) => a.profile.heat === "low");
+---
+
+<Layout
+  title="All Flavor Profiles"
+  description="Explore all 16 engagement flavor profiles. Each one brings unique value to community organizing."
+>
+  <section class="profiles-page section-padding">
+    <div class="container-content">
+      <header class="profiles-page__header">
+        <h1 class="text-heading-1">Flavor Profiles</h1>
+        <div class="title-accent"></div>
+        <p class="text-body-large profiles-page__description">
+          There are 16 unique engagement styles, each defined by four flavor dimensions:
+          Heat (risk tolerance), Sweet (motivation), Zest (visibility), and Heft (commitment).
+          Every profile brings essential value to community organizing.
+        </p>
+      </header>
+
+      <div class="profiles-page__cta">
+        <a href="/quiz/" class="profiles-page__button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+          </svg>
+          Take the quiz to find yours
+        </a>
+      </div>
+
+      <div class="profiles-page__legend">
+        <h2 class="profiles-page__legend-title">The Four Dimensions</h2>
+        <div class="profiles-page__legend-grid">
+          <div class="legend-item">
+            <span class="legend-item__label">Heat</span>
+            <span class="legend-item__range">Mild ↔ Spicy</span>
+            <span class="legend-item__desc">Risk tolerance</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-item__label">Sweet</span>
+            <span class="legend-item__range">Bitter ↔ Sweet</span>
+            <span class="legend-item__desc">Motivation source</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-item__label">Zest</span>
+            <span class="legend-item__range">Subtle ↔ Bold</span>
+            <span class="legend-item__desc">Visibility</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-item__label">Heft</span>
+            <span class="legend-item__range">Light ↔ Hearty</span>
+            <span class="legend-item__desc">Time commitment</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profiles-page__group">
+        <h2 class="profiles-page__group-title">
+          {AXIS_GROUP_LABELS.heat.high}
+          <span class="profiles-page__group-subtitle">
+            Willing to take controversial stances and challenge authority directly
+          </span>
+        </h2>
+        <div class="profiles-page__grid">
+          {spicyProfiles.map((archetype) => (
+            <ArchetypeCard 
+              archetype={archetype} 
+              compact={true}
+              client:load
+            />
+          ))}
+        </div>
+      </div>
+
+      <div class="profiles-page__group">
+        <h2 class="profiles-page__group-title">
+          {AXIS_GROUP_LABELS.heat.low}
+          <span class="profiles-page__group-subtitle">
+            Prefer safer approaches and working within established channels
+          </span>
+        </h2>
+        <div class="profiles-page__grid">
+          {mildProfiles.map((archetype) => (
+            <ArchetypeCard 
+              archetype={archetype} 
+              compact={true}
+              client:load
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .profiles-page {
+    min-height: 80vh;
+  }
+
+  .profiles-page__header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .profiles-page__description {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .profiles-page__cta {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .profiles-page__button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-xl);
+    background-color: var(--accent);
+    color: white;
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--radius-md);
+    transition:
+      background-color var(--transition-fast) ease,
+      transform var(--transition-fast) ease;
+  }
+
+  .profiles-page__button:hover {
+    background-color: var(--accent-dark);
+    transform: translateY(-2px);
+  }
+
+  .profiles-page__button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .profiles-page__legend {
+    background-color: var(--secondary-lightest);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-3xl);
+  }
+
+  .profiles-page__legend-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-default);
+    margin: 0 0 var(--spacing-lg) 0;
+    text-align: center;
+  }
+
+  .profiles-page__legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  .legend-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-xs);
+  }
+
+  .legend-item__label {
+    font-weight: var(--font-weight-bold);
+    color: var(--accent);
+    font-size: var(--font-size-md);
+  }
+
+  .legend-item__range {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-default);
+  }
+
+  .legend-item__desc {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-default);
+    opacity: 0.7;
+  }
+
+  .profiles-page__group {
+    margin-bottom: var(--spacing-3xl);
+  }
+
+  .profiles-page__group-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-default);
+    margin: 0 0 var(--spacing-lg) 0;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .profiles-page__group-subtitle {
+    display: block;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-normal);
+    color: var(--text-color-default);
+    opacity: 0.7;
+    margin-top: var(--spacing-xs);
+  }
+
+  .profiles-page__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+  }
+</style>

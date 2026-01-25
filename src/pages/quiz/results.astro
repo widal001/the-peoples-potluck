@@ -1,0 +1,164 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import QuizResultLoader from "@/components/quiz/QuizResultLoader.svelte";
+import ArchetypeCard from "@/components/quiz/ArchetypeCard.svelte";
+import { AXIS_GROUP_LABELS } from "@/config/quiz";
+import { getAllArchetypes } from "@/lib/quiz";
+
+// Get all archetypes for the browse section
+const allArchetypes = getAllArchetypes();
+
+// Group archetypes by heat (spicy vs mild)
+const spicyProfiles = allArchetypes.filter((a) => a.profile.heat === "high");
+const mildProfiles = allArchetypes.filter((a) => a.profile.heat === "low");
+---
+
+<Layout
+  title="Your Results | Find Your Flavor"
+  description="Discover your engagement flavor profile and explore all 16 archetypes."
+>
+  <section class="results-page section-padding">
+    <div class="container-content">
+      <!-- Result section - loads from URL param and store -->
+      <div class="results-page__result">
+        <QuizResultLoader client:load />
+      </div>
+
+      <!-- All profiles section -->
+      <div class="results-page__browse">
+        <header class="results-page__browse-header">
+          <h2 class="text-heading-2">All Flavor Profiles</h2>
+          <p class="text-body-large">
+            Explore all 16 engagement styles. Each one brings unique value to community organizing.
+          </p>
+        </header>
+
+        <div class="results-page__group">
+          <h3 class="results-page__group-title">
+            {AXIS_GROUP_LABELS.heat.high}
+            <span class="results-page__group-subtitle">Higher risk tolerance</span>
+          </h3>
+          <div class="results-page__grid">
+            {spicyProfiles.map((archetype) => (
+              <ArchetypeCard 
+                archetype={archetype} 
+                compact={true}
+                client:load
+              />
+            ))}
+          </div>
+        </div>
+
+        <div class="results-page__group">
+          <h3 class="results-page__group-title">
+            {AXIS_GROUP_LABELS.heat.low}
+            <span class="results-page__group-subtitle">Lower risk tolerance</span>
+          </h3>
+          <div class="results-page__grid">
+            {mildProfiles.map((archetype) => (
+              <ArchetypeCard 
+                archetype={archetype} 
+                compact={true}
+                client:load
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="results-page__footer">
+        <a href="/quiz/take/?new=true" class="results-page__retake">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          Take the quiz again
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .results-page {
+    min-height: 80vh;
+  }
+
+  .results-page__result {
+    margin-bottom: var(--spacing-4xl);
+  }
+
+  .results-page__browse {
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .results-page__browse-header {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .results-page__browse-header p {
+    max-width: 600px;
+    margin: var(--spacing-md) auto 0;
+  }
+
+  .results-page__group {
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .results-page__group-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-default);
+    margin: 0 0 var(--spacing-lg) 0;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+  }
+
+  .results-page__group-subtitle {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-normal);
+    color: var(--text-color-default);
+    opacity: 0.7;
+  }
+
+  .results-page__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  .results-page__footer {
+    text-align: center;
+    padding-top: var(--spacing-xl);
+    border-top: 1px solid var(--border-default);
+  }
+
+  .results-page__retake {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-xl);
+    background-color: var(--secondary-lightest);
+    color: var(--text-color-default);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--radius-md);
+    transition:
+      background-color var(--transition-fast) ease,
+      transform var(--transition-fast) ease;
+  }
+
+  .results-page__retake:hover {
+    background-color: var(--secondary-lighter);
+    transform: translateY(-2px);
+  }
+
+  .results-page__retake svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+</style>
