@@ -31,11 +31,70 @@ const flavorProfileSchema = z.object({
   heft: z.number().min(1).max(5).optional(), // light(1) ↔ hearty(5): time commitment
 });
 
-// Shared schema for potluck items
-const potluckItemSchema = z.object({
+// Category options per collection - literal labels for usability
+
+// Table Settings: To learn
+const settingsCategorySchema = z
+  .enum([
+    "history", // Historical context, timelines
+    "legislation", // Laws, policies, executive orders
+    "data", // Demographics, statistics, research
+    "rights", // Know your rights, legal tools
+  ])
+  .optional();
+
+// Dishes: To get connected
+const dishesCategorySchema = z
+  .enum([
+    "government", // Government agencies, official programs
+    "nonprofit", // Established nonprofit organizations
+    "coalition", // Networks, coalitions, alliances
+    "project", // Time-bound initiatives, campaigns
+    "grassroots", // Informal groups, mutual aid
+  ])
+  .optional();
+
+// Desserts: To get inspired
+const dessertsCategorySchema = z
+  .enum([
+    "local", // Baltimore/Maryland successes
+    "elsewhere", // Examples from other places
+    "case-study", // In-depth analysis of what worked
+    "media", // Articles, videos, podcasts, etc.
+  ])
+  .optional();
+
+// Drinks: To express/discover needs
+const drinksCategorySchema = z
+  .enum([
+    "urgent", // Immediate, pressing needs
+    "ongoing", // Persistent gaps in resources/support
+    "idea", // Proposals and concepts needing support
+  ])
+  .optional();
+
+// Sips & Bites: To take action (skills-based)
+// Note: Bites use the standard relatedX fields to connect across all collections:
+// - relatedSettings: "What you should know first" (context)
+// - relatedDesserts: "Why this matters" (inspiration)
+// - relatedDishes: "Who you'll be supporting" (connection)
+// - relatedDrinks: "What need this addresses" (purpose)
+const bitesCategorySchema = z
+  .enum([
+    "research", // Digging, writing, documenting
+    "outreach", // Calling, canvassing, spreading word
+    "direct-support", // Accompaniment, translation, driving
+    "technical", // Design, web, data work
+    "organizing", // Coordinating, planning, facilitating
+    "donation", // Money, goods, space
+  ])
+  .optional();
+
+// Base schema (shared fields for all potluck items)
+const potluckBaseSchema = z.object({
   title: z.string(),
   description: z.string(),
-  // Tags for filtering and display (like Skip the Bow's tag pills)
+  // Tags for filtering and display
   tags: z.array(z.string()).optional(),
   // Icon placeholder: base SVG name + two colors
   icon: z
@@ -50,37 +109,73 @@ const potluckItemSchema = z.object({
   addedDate: z.string().optional(),
   // Flavor profile for filtering by resource characteristics
   flavor: flavorProfileSchema.optional(),
+  // Related content (slugs only, resolved at build time)
+  relatedBites: z.array(z.string()).optional(),
+  relatedDishes: z.array(z.string()).optional(),
+  relatedDesserts: z.array(z.string()).optional(),
+  relatedDrinks: z.array(z.string()).optional(),
+  relatedSettings: z.array(z.string()).optional(),
 });
 
-// Side Dishes: Existing Baltimore groups/efforts related to immigrant solidarity
-const sideDishes = defineCollection({
+// Collection-specific schemas with category fields
+
+// Table Settings: To learn - History, legislation, and local context
+const settingsSchema = potluckBaseSchema.extend({
+  category: settingsCategorySchema,
+});
+
+// Dishes: To get connected - Organizations, coalitions, and initiatives
+const dishesSchema = potluckBaseSchema.extend({
+  category: dishesCategorySchema,
+});
+
+// Desserts: To get inspired - Successes, case studies, and stories
+const dessertsSchema = potluckBaseSchema.extend({
+  category: dessertsCategorySchema,
+});
+
+// Drinks: To express/discover needs - Gaps, needs, and ideas
+const drinksSchema = potluckBaseSchema.extend({
+  category: drinksCategorySchema,
+});
+
+// Sips & Bites: To take action - Specific ways to get involved
+const bitesSchema = potluckBaseSchema.extend({
+  category: bitesCategorySchema,
+});
+
+// Define collections
+const settings = defineCollection({
   type: "content",
-  schema: potluckItemSchema,
+  schema: settingsSchema,
 });
 
-// Desserts: Hopeful initiatives giving hope for community safety
+const dishes = defineCollection({
+  type: "content",
+  schema: dishesSchema,
+});
+
 const desserts = defineCollection({
   type: "content",
-  schema: potluckItemSchema,
+  schema: dessertsSchema,
 });
 
-// Plates & Cutlery: Local historical context about ICE/policing/immigration
-const platesCutlery = defineCollection({
-  type: "content",
-  schema: potluckItemSchema,
-});
-
-// Drinks: What Baltimore is thirsty for in organizing/mutual aid
 const drinks = defineCollection({
   type: "content",
-  schema: potluckItemSchema,
+  schema: drinksSchema,
+});
+
+const bites = defineCollection({
+  type: "content",
+  schema: bitesSchema,
 });
 
 export const collections = {
   pages,
   "case-studies": caseStudies,
-  "side-dishes": sideDishes,
+  settings,
+  dishes,
   desserts,
-  "plates-cutlery": platesCutlery,
   drinks,
+  bites,
 };

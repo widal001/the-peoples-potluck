@@ -9,18 +9,13 @@
   export let item: PotluckItem;
   export let category: PotluckCategory;
   export let href: string | undefined = undefined;
+  export let compact: boolean = false;
 
   // Default href if not provided
   $: linkHref = href ?? `/${category}/${item.slug}/`;
 
-  // Truncate description for card view
-  $: truncatedDescription =
-    item.description.length > 150
-      ? item.description.slice(0, 150) + "..."
-      : item.description;
-
-  // Limit tags to 4
-  $: displayTags = item.tags?.slice(0, 4) ?? [];
+  // Limit tags to 3 in compact mode, 4 otherwise
+  $: displayTags = item.tags?.slice(0, compact ? 3 : 4) ?? [];
 
   // Check if item has any flavor data
   $: hasFlavorData =
@@ -41,9 +36,10 @@
 <a
   href={linkHref}
   class="potluck-card-link"
+  class:potluck-card-link--compact={compact}
   aria-label="Read more about {item.title}"
 >
-  <article class="potluck-card">
+  <article class="potluck-card" class:potluck-card--compact={compact}>
     <div class="potluck-card__header">
       {#if item.icon}
         <div
@@ -52,10 +48,14 @@
           aria-hidden="true"
         ></div>
       {/if}
-      <h3 class="potluck-card__title">{item.title}</h3>
+      <h3 class="potluck-card__title" class:potluck-card__title--compact={compact}>
+        {item.title}
+      </h3>
     </div>
 
-    <p class="potluck-card__description">{truncatedDescription}</p>
+    <p class="potluck-card__description" class:potluck-card__description--compact={compact}>
+      {item.description}
+    </p>
 
     {#if hasFlavorData}
       <div class="potluck-card__flavor">
@@ -139,6 +139,14 @@
     outline-offset: 2px;
   }
 
+  .potluck-card-link--compact {
+    height: 280px;
+  }
+
+  .potluck-card--compact {
+    overflow: hidden;
+  }
+
   .potluck-card__header {
     display: flex;
     align-items: flex-start;
@@ -154,6 +162,14 @@
     line-height: 1.3;
   }
 
+  .potluck-card__title--compact {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   .potluck-card__description {
     font-size: var(--font-size-md);
     color: var(--text-color-default);
@@ -161,6 +177,14 @@
     margin: 0 0 var(--spacing-md) 0;
     flex-grow: 1;
     line-height: 1.5;
+  }
+
+  .potluck-card__description--compact {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .potluck-card__flavor {

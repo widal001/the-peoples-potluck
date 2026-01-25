@@ -40,14 +40,19 @@ export interface PotluckItem {
   tags?: string[];
   icon?: PotluckIcon;
   flavor?: FlavorProfile;
+  // Related content slugs (optional, used for finding related bites)
+  relatedBites?: string[];
 }
 
-// Category types
-export type PotluckCategory =
-  | "side-dishes"
-  | "desserts"
-  | "plates-cutlery"
-  | "drinks";
+// Category types - re-exported from centralized config
+export type { PotluckCategory } from "@/config/collections";
+export {
+  COLLECTION_KEYS,
+  COLLECTIONS,
+  getCollectionConfig,
+  getAllCollections,
+  getCategoryLabel,
+} from "@/config/collections";
 
 // Axis metadata for UI display
 export interface AxisConfig {

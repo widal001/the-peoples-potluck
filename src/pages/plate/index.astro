@@ -4,18 +4,24 @@ import Layout from "@/layouts/Layout.astro";
 import ActiveFilters from "@/components/filters/ActiveFilters.svelte";
 import FilterPanel from "@/components/filters/FilterPanel.svelte";
 import RandomPlate from "@/components/potluck/RandomPlate.svelte";
+import SuggestedBites from "@/components/potluck/SuggestedBites.svelte";
 import { collectionEntryToItem } from "@/lib/filters";
+import { getAllCollections } from "@/config/collections";
 
 // Fetch all collections and map to PotluckItem format
-const sideDishes = (await getCollection("side-dishes")).map(collectionEntryToItem);
+const settings = (await getCollection("settings")).map(collectionEntryToItem);
+const dishes = (await getCollection("dishes")).map(collectionEntryToItem);
 const desserts = (await getCollection("desserts")).map(collectionEntryToItem);
-const platesCutlery = (await getCollection("plates-cutlery")).map(collectionEntryToItem);
 const drinks = (await getCollection("drinks")).map(collectionEntryToItem);
+const bites = (await getCollection("bites")).map(collectionEntryToItem);
+
+// Get collection links from centralized config
+const collectionLinks = getAllCollections();
 ---
 
 <Layout
   title="Your Plate"
-  description="A random selection of resources from the Baltimore ICE Potluck - one side dish, one dessert, some plates & cutlery, and a drink."
+  description="A random selection of resources from the Baltimore ICE Potluck to help you learn, connect, get inspired, and take action."
 >
   <section class="plate-page section-padding">
     <div class="container-content">
@@ -23,9 +29,9 @@ const drinks = (await getCollection("drinks")).map(collectionEntryToItem);
         <h1 class="text-heading-1">Your Plate</h1>
         <div class="title-accent"></div>
         <p class="text-body-large plate-description">
-          Here's a random selection from the potluck—one resource from each
-          category. Use the flavor sliders to adjust what kind of resources
-          you're looking for, then click the button to get a new combination.
+          Here's a random selection from the potluck—something to learn, a way
+          to connect, inspiration, a need to address, plus a few bite-sized
+          actions. Use the flavor sliders to adjust what resonates with you.
         </p>
       </header>
 
@@ -35,10 +41,16 @@ const drinks = (await getCollection("drinks")).map(collectionEntryToItem);
       </div>
 
       <RandomPlate
-        {sideDishes}
+        {settings}
+        {dishes}
         {desserts}
-        {platesCutlery}
         {drinks}
+        client:load
+      />
+
+      <SuggestedBites
+        {bites}
+        usePlateStore={true}
         client:load
       />
 
@@ -47,10 +59,9 @@ const drinks = (await getCollection("drinks")).map(collectionEntryToItem);
           Want to explore more? Browse all resources in each category:
         </p>
         <nav class="category-links">
-          <a href="/side-dishes/" class="category-link">Side Dishes</a>
-          <a href="/desserts/" class="category-link">Desserts</a>
-          <a href="/plates-cutlery/" class="category-link">Plates & Cutlery</a>
-          <a href="/drinks/" class="category-link">Drinks</a>
+          {collectionLinks.map((c) => (
+            <a href={c.path} class="category-link">{c.label}</a>
+          ))}
         </nav>
       </div>
     </div>

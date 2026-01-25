@@ -36,7 +36,18 @@ export {
   getFilteredOrClosest,
   getRandomItem,
   getRandomFilteredItem,
+  // Random selection utilities
+  shuffle,
+  getRandomItems,
+  getRandomFilteredItems,
+  resolveSlugsToItems,
+  // Flavor comparison
+  compareFlavorProfiles,
+  getFlavorComparisonSummary,
+  groupByFlavorComparison,
 } from "./filter-logic";
+
+export type { FlavorDiff, FlavorGroupedItems } from "./filter-logic";
 
 // URL synchronization
 export {

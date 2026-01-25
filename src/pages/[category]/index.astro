@@ -1,0 +1,84 @@
+---
+/**
+ * Dynamic collection index page
+ * Handles: /settings/, /dishes/, /desserts/, /drinks/, /bites/
+ */
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import ActiveFilters from "@/components/filters/ActiveFilters.svelte";
+import FilterPanel from "@/components/filters/FilterPanel.svelte";
+import FilterableGrid from "@/components/filters/FilterableGrid.svelte";
+import SuggestedBites from "@/components/potluck/SuggestedBites.svelte";
+import { prepareCollectionItems, collectionEntryToItem } from "@/lib/filters";
+import { COLLECTION_KEYS, COLLECTIONS } from "@/config/collections";
+import type { PotluckCategory } from "@/config/collections";
+
+export async function getStaticPaths() {
+  return COLLECTION_KEYS.map((key) => ({
+    params: { category: key },
+  }));
+}
+
+const { category } = Astro.params as { category: PotluckCategory };
+const config = COLLECTIONS[category];
+
+// Fetch items for this collection
+const items = prepareCollectionItems(await getCollection(category));
+
+// Fetch bites for suggested section (only for non-bites collections)
+const showSuggestedBites = category !== "bites";
+const bites = showSuggestedBites
+  ? (await getCollection("bites")).map(collectionEntryToItem)
+  : [];
+
+// Empty message uses collection label
+const emptyMessage = `No ${config.label.toLowerCase()} match your filters. Try adjusting the flavor profile or reset filters.`;
+---
+
+<Layout title={config.label} description={config.description}>
+  <section class="section-padding">
+    <div class="container-content">
+      <header class="page-header">
+        <h1 class="text-heading-1">{config.label}</h1>
+        <p class="page-tagline">{config.tagline}</p>
+        <div class="title-accent"></div>
+        <p class="text-body-large page-description">
+          {config.description}
+        </p>
+      </header>
+
+      <div class="filter-controls">
+        <ActiveFilters client:load />
+        <FilterPanel client:load />
+      </div>
+
+      <FilterableGrid {items} {category} {emptyMessage} client:load />
+
+      {showSuggestedBites && <SuggestedBites {bites} client:load />}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-header {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .page-tagline {
+    font-size: var(--font-size-lg);
+    font-style: italic;
+    color: var(--text-color-lighter);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .page-description {
+    max-width: 65ch;
+  }
+
+  .filter-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+  }
+</style>

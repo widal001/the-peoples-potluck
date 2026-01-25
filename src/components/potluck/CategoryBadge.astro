@@ -1,19 +1,17 @@
 ---
+import {
+  type PotluckCategory,
+  getCategoryLabel,
+} from "@/config/collections";
+
 interface Props {
-  category: "side-dishes" | "desserts" | "plates-cutlery" | "drinks";
+  category: PotluckCategory;
   href?: string;
 }
 
 const { category, href } = Astro.props;
 
-const categoryLabels: Record<string, string> = {
-  "side-dishes": "side dish",
-  desserts: "dessert",
-  "plates-cutlery": "plates & cutlery",
-  drinks: "drink",
-};
-
-const label = categoryLabels[category] || category;
+const label = getCategoryLabel(category);
 ---
 
 {

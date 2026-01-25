@@ -2,12 +2,9 @@
 import PotluckIcon from "./PotluckIcon.astro";
 import TagPill from "./TagPill.astro";
 import type { CollectionEntry } from "astro:content";
+import type { PotluckCategory } from "@/config/collections";
 
-type PotluckCollection =
-  | "side-dishes"
-  | "desserts"
-  | "plates-cutlery"
-  | "drinks";
+type PotluckCollection = PotluckCategory;
 
 interface Props {
   title: string;
