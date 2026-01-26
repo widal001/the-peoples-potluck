@@ -18,7 +18,7 @@ export function getScenariosByArchetype(archetypeId: ArchetypeId): Scenario[] {
 // Get scenario at specific index for an archetype (0 or 1)
 export function getScenarioForArchetype(
   archetypeId: ArchetypeId,
-  index: 0 | 1
+  index: 0 | 1,
 ): Scenario {
   return SCENARIOS_BY_ARCHETYPE[archetypeId][index];
 }

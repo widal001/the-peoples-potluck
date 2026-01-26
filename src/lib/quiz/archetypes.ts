@@ -23,7 +23,7 @@ export function getAllArchetypes(): Archetype[] {
 // Get archetypes filtered by axis level
 export function getArchetypesByAxis(
   axis: "heat" | "sweet" | "zest" | "heft",
-  level: "high" | "low"
+  level: "high" | "low",
 ): Archetype[] {
   return Object.values(ARCHETYPES).filter((a) => a.profile[axis] === level);
 }

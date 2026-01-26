@@ -22,7 +22,11 @@ export {
 } from "./scenarios";
 
 // Question functions
-export { getQuestionById, TOTAL_QUESTIONS, verifyDesignBalance } from "./questions";
+export {
+  getQuestionById,
+  TOTAL_QUESTIONS,
+  verifyDesignBalance,
+} from "./questions";
 
 // Scoring functions
 export {

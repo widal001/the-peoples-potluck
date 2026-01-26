@@ -34,7 +34,7 @@ export function createEmptyAxisCounts(): AxisCounts {
 // Add an archetype's profile to the counts
 export function addToAxisCounts(
   counts: AxisCounts,
-  archetypeId: ArchetypeId
+  archetypeId: ArchetypeId,
 ): AxisCounts {
   const profile = idToProfile(archetypeId);
 
@@ -84,7 +84,7 @@ export function getTiedAxes(counts: AxisCounts): FlavorAxis[] {
 export function getAxisWinner(
   counts: AxisCounts,
   axis: FlavorAxis,
-  tiebreaker?: ProfileLevel
+  tiebreaker?: ProfileLevel,
 ): ProfileLevel {
   if (counts[axis].high > counts[axis].low) {
     return "high";
@@ -99,7 +99,7 @@ export function getAxisWinner(
 // Get tiebreaker values from most recent answer that has non-tied values
 export function getTiebreakersFromAnswers(
   answers: QuizAnswer[],
-  tiedAxes: FlavorAxis[]
+  tiedAxes: FlavorAxis[],
 ): Partial<Record<FlavorAxis, ProfileLevel>> {
   const tiebreakers: Partial<Record<FlavorAxis, ProfileLevel>> = {};
 
@@ -125,7 +125,7 @@ export function getTiebreakersFromAnswers(
 // Calculate final profile from counts
 export function calculateProfile(
   counts: AxisCounts,
-  tiebreakers?: Partial<Record<FlavorAxis, ProfileLevel>>
+  tiebreakers?: Partial<Record<FlavorAxis, ProfileLevel>>,
 ): ArchetypeProfile {
   return {
     heat: getAxisWinner(counts, "heat", tiebreakers?.heat),
@@ -151,7 +151,7 @@ export function calculateResult(answers: QuizAnswer[]): ArchetypeId {
 
 // Get confidence scores (how strongly each axis leaned)
 export function getConfidenceScores(
-  counts: AxisCounts
+  counts: AxisCounts,
 ): Record<FlavorAxis, number> {
   const total = counts.heat.high + counts.heat.low; // Should be same for all axes
 

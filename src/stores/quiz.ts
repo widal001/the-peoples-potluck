@@ -106,7 +106,7 @@ function createQuizStore() {
 
         // Remove existing answer for this question if any
         const existingIndex = state.answers.findIndex(
-          (a) => a.questionId === state.currentQuestion
+          (a) => a.questionId === state.currentQuestion,
         );
 
         let newAnswers: QuizAnswer[];
@@ -131,7 +131,7 @@ function createQuizStore() {
     advanceQuestion: () => {
       update((state) => {
         const isComplete = state.currentQuestion >= TOTAL_QUESTIONS;
-        
+
         if (isComplete) {
           const newState = { ...state, isComplete: true };
           saveToStorage(newState);
@@ -244,7 +244,7 @@ export const canGoBack = derived(quizStore, ($quiz): boolean => {
 // Derived store: can go forward (has answered current question)
 export const canGoForward = derived(quizStore, ($quiz): boolean => {
   const hasAnswer = $quiz.answers.some(
-    (a) => a.questionId === $quiz.currentQuestion
+    (a) => a.questionId === $quiz.currentQuestion,
   );
   return hasAnswer && $quiz.currentQuestion < TOTAL_QUESTIONS;
 });

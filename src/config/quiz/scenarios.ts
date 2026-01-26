@@ -313,5 +313,5 @@ export const SCENARIOS_BY_ARCHETYPE: Record<ArchetypeId, [Scenario, Scenario]> =
 
 // Flatten to array for easy lookup
 export const SCENARIOS: Scenario[] = Object.values(
-  SCENARIOS_BY_ARCHETYPE
+  SCENARIOS_BY_ARCHETYPE,
 ).flat();

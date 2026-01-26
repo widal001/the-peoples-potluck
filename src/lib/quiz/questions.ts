@@ -49,7 +49,7 @@ export function verifyDesignBalance(): {
 
   // Check if balanced: each archetype 4 times, each axis level 32 times
   const archetypeBalanced = Object.values(archetypeCounts).every(
-    (c) => c === 4
+    (c) => c === 4,
   );
   const axisBalanced =
     axisCounts.heat.high === 32 &&

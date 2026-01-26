@@ -40,7 +40,8 @@ export const DESIGN_MATRIX: ArchetypeId[][] = [
 ];
 
 // Single prompt for all questions - keeps focus on comparing the options
-export const QUESTION_PROMPT = "Which of these interventions sounds the most appetizing?";
+export const QUESTION_PROMPT =
+  "Which of these interventions sounds the most appetizing?";
 
 // Build questions with proper scenario rotation
 // Each archetype's scenarios alternate: A, B, A, B for appearances 1, 2, 3, 4
