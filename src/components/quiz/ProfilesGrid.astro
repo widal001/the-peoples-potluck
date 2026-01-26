@@ -1,0 +1,125 @@
+---
+import ArchetypeCard from "./ArchetypeCard.svelte";
+import { getAllArchetypes } from "@/lib/quiz";
+
+// Get all archetypes
+const allArchetypes = getAllArchetypes();
+
+// Sort for 2x2 grid: rows = Heft (Hearty top, Light bottom), cols = Zest (Bold left, Subtle right)
+// Order: [Bold+Hearty, Subtle+Hearty, Bold+Light, Subtle+Light]
+const sortForGrid = (profiles: typeof allArchetypes) => {
+  const order = [
+    { zest: "high", heft: "high" }, // top-left: Bold + Hearty
+    { zest: "low", heft: "high" }, // top-right: Subtle + Hearty
+    { zest: "high", heft: "low" }, // bottom-left: Bold + Light
+    { zest: "low", heft: "low" }, // bottom-right: Subtle + Light
+  ];
+  return order
+    .map((o) =>
+      profiles.find(
+        (p) => p.profile.zest === o.zest && p.profile.heft === o.heft,
+      ),
+    )
+    .filter((p): p is (typeof profiles)[number] => p !== undefined);
+};
+
+// Define quadrants: Heat × Sweet combinations
+const quadrants = [
+  {
+    heat: "high" as const,
+    sweet: "high" as const,
+    title: "Hopeful & Bold",
+    subtitle: "Motivated by hope, willing to take risks",
+  },
+  {
+    heat: "low" as const,
+    sweet: "high" as const,
+    title: "Hopeful & Safe",
+    subtitle: "Motivated by hope, prefer established channels",
+  },
+  {
+    heat: "high" as const,
+    sweet: "low" as const,
+    title: "Driven & Bold",
+    subtitle: "Motivated by urgency, willing to take risks",
+  },
+  {
+    heat: "low" as const,
+    sweet: "low" as const,
+    title: "Driven & Safe",
+    subtitle: "Motivated by urgency, prefer established channels",
+  },
+];
+
+// Build the quadrant data
+const quadrantData = quadrants.map((q) => ({
+  ...q,
+  profiles: sortForGrid(
+    allArchetypes.filter(
+      (a) => a.profile.heat === q.heat && a.profile.sweet === q.sweet,
+    ),
+  ),
+}));
+---
+
+<div class="profiles-grid">
+  {
+    quadrantData.map((quadrant) => (
+      <div class="profiles-grid__quadrant">
+        <h3 class="profiles-grid__title">
+          {quadrant.title}
+          <span class="profiles-grid__subtitle">{quadrant.subtitle}</span>
+        </h3>
+        <div class="profiles-grid__cards">
+          {quadrant.profiles.map((archetype) => (
+            <ArchetypeCard archetype={archetype} compact={true} client:load />
+          ))}
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .profiles-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
+
+  .profiles-grid__quadrant {
+    background-color: var(--surface-lighter);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+  }
+
+  .profiles-grid__title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-default);
+    margin: 0 0 var(--spacing-lg) 0;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .profiles-grid__subtitle {
+    display: block;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-normal);
+    color: var(--text-color-default);
+    opacity: 0.7;
+    margin-top: var(--spacing-xs);
+  }
+
+  .profiles-grid__cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  @media (max-width: 600px) {
+    .profiles-grid__cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

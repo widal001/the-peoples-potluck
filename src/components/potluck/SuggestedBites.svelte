@@ -29,6 +29,8 @@
   // Reactive state for displayed bites
   let displayedBites: PotluckItem[] = [];
   let isRefreshing = false;
+  let isLocalShuffling = false;
+  let localShuffleTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Counter to force re-computation when shuffle is clicked
   let shuffleCounter = 0;
@@ -37,14 +39,20 @@
   $: if (usePlateStore) {
     // Reference shuffleCounter to trigger reactivity on shuffle
     shuffleCounter;
-    // Only sync refreshing state from plateStore when not doing local shuffle
-    if ($plateStore.isRefreshing) {
-      isRefreshing = true;
-    }
-    displayedBites = resolveSlugsToItems($relatedBiteSlugs, bitesBySlug, {
+    
+    // Compute new bites
+    const newBites = resolveSlugsToItems($relatedBiteSlugs, bitesBySlug, {
       count: maxItems,
       fallbackPool: bites,
     });
+    
+    // Update displayedBites
+    displayedBites = newBites.length > 0 ? newBites : displayedBites;
+  }
+
+  // Separate reactive statement for syncing refreshing state from plateStore
+  $: if (usePlateStore && !isLocalShuffling) {
+    isRefreshing = $plateStore.isRefreshing;
   }
 
   // In collection mode, subscribe to filterState changes and shuffleCounter
@@ -56,10 +64,21 @@
 
   // Handle shuffle button click
   function handleShuffle() {
+    // Clear any existing timeout
+    if (localShuffleTimeout) {
+      clearTimeout(localShuffleTimeout);
+    }
+    
+    isLocalShuffling = true;
     isRefreshing = true;
-    setTimeout(() => {
+    localShuffleTimeout = setTimeout(() => {
       shuffleCounter++;
       isRefreshing = false;
+      // Reset local shuffling flag after a brief delay to allow plate store to sync
+      setTimeout(() => {
+        isLocalShuffling = false;
+        localShuffleTimeout = null;
+      }, 50);
     }, 150);
   }
 

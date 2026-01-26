@@ -117,9 +117,12 @@ h6 {
   --radius-xl: 0.75rem;
   --radius-full: 9999px; /* Force full rounding */
 
-  /* Border width */
-  --border-width: 1px;
-  --border-width-thick: 1px;
+  /* Border width scale */
+  --border-width-xs: 1px;
+  --border-width-sm: 1.5px;
+  --border-width-md: 2px;
+  --border-width-lg: 3px;
+  --border-width: var(--border-width-xs); /* Default */
 
   /* Shadows */
   --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -248,6 +251,10 @@ h6 {
   width: var(--spacing-4xl);
 }
 
+.title-accent[data-align="center"] {
+  margin-inline: auto;
+}
+
 /* =======================================================
    LAYOUT PRIMITIVES
    =======================================================
@@ -257,6 +264,11 @@ h6 {
 .container-content {
   margin-inline: auto;
   max-width: var(--container-max-width);
+}
+
+.container-wide {
+  margin-inline: auto;
+  max-width: 1400px;
 }
 
 .section-padding {
