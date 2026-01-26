@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { quizStore, axisCounts } from "@/stores/quiz";
+  import { quizStore, axisCounts, quizResult, isQuizComplete } from "@/stores/quiz";
   import type { ArchetypeId } from "@/config/quiz/types";
   import { getArchetypeById } from "@/lib/quiz";
   import QuizResult from "./QuizResult.svelte";
@@ -8,6 +8,7 @@
   // Get profile from URL
   let profileId: ArchetypeId | null = null;
   let isLoaded = false;
+  let hasRedirected = false;
 
   onMount(() => {
     // Initialize store from localStorage
@@ -18,6 +19,21 @@
     profileId = urlParams.get("profile") as ArchetypeId | null;
     isLoaded = true;
   });
+
+  // Reactive: If no profile in URL but we have results in store, redirect with profile param
+  $: if (
+    isLoaded &&
+    !hasRedirected &&
+    !profileId &&
+    $isQuizComplete &&
+    $quizResult
+  ) {
+    hasRedirected = true;
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set("profile", $quizResult);
+    window.history.replaceState({}, "", newUrl.toString());
+    profileId = $quizResult;
+  }
 
   // Get archetype from profile ID
   $: archetype = profileId ? getArchetypeById(profileId) : null;
