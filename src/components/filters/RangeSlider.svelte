@@ -266,7 +266,6 @@
   .range-slider__endpoint {
     font-size: var(--font-size-xs);
     color: var(--text-color-lighter);
-    font-style: italic;
   }
 
   .range-slider__track-container {

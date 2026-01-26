@@ -5,13 +5,13 @@
    */
 
   export let title: string = "Flavor Profile";
-  
+
   // Scores for each axis (1-5 scale)
   export let heat: number;
   export let sweet: number;
   export let zest: number;
   export let heft: number;
-  
+
   // Optional custom explanations for each axis
   export let heatExplanation: string | undefined = undefined;
   export let sweetExplanation: string | undefined = undefined;
@@ -86,7 +86,11 @@
     { key: "heft", score: heft, customExplanation: heftExplanation },
   ] as const;
 
-  function getExplanation(key: keyof typeof axisConfig, score: number, custom?: string): string {
+  function getExplanation(
+    key: keyof typeof axisConfig,
+    score: number,
+    custom?: string,
+  ): string {
     if (custom) return custom;
     const config = axisConfig[key];
     return config.defaultExplanations[score] || config.defaultExplanations[3];
@@ -139,23 +143,23 @@
 
           <div class="flavor-cell__scale-wrapper">
             <div class="flavor-cell__track">
-              <div 
-                class="flavor-cell__fill" 
+              <div
+                class="flavor-cell__fill"
                 style="width: {((score - 1) / 4) * 100}%"
               ></div>
-              <div 
-                class="flavor-cell__thumb" 
+              <div
+                class="flavor-cell__thumb"
                 style="left: {((score - 1) / 4) * 100}%"
               ></div>
             </div>
 
             <div class="flavor-cell__ticks">
               {#each [1, 2, 3, 4, 5] as tick}
-                <span 
-                  class="flavor-cell__tick" 
+                <span
+                  class="flavor-cell__tick"
                   class:flavor-cell__tick--active={tick === score}
-                  style="left: {((tick - 1) / 4) * 100}%"
-                >{tick}</span>
+                  style="left: {((tick - 1) / 4) * 100}%">{tick}</span
+                >
               {/each}
             </div>
           </div>
@@ -241,7 +245,6 @@
   .flavor-cell__endpoint {
     font-size: var(--font-size-xs);
     color: var(--text-color-lighter);
-    font-style: italic;
     padding: 2px var(--spacing-xs);
     border-radius: var(--radius-sm);
     transition:
@@ -250,10 +253,8 @@
   }
 
   .flavor-cell__endpoint--highlighted {
-    background-color: var(--accent-lightest, rgba(67, 111, 97, 0.12));
+    background-color: var(--accent-lightest);
     color: var(--accent-dark);
-    font-style: normal;
-    font-weight: var(--font-weight-medium);
   }
 
   .flavor-cell__scale-wrapper {
@@ -272,7 +273,7 @@
   }
 
   .flavor-cell__track::before {
-    content: '';
+    content: "";
     position: absolute;
     left: 0;
     right: 0;

@@ -193,8 +193,8 @@
     font-size: 0.75rem;
     font-weight: var(--font-weight-medium);
     border-radius: var(--radius-full, 9999px);
-    background-color: var(--secondary-lightest);
-    color: var(--secondary-dark);
+    background-color: var(--accent-lighter);
+    color: var(--accent-darkest);
     white-space: nowrap;
   }
 
@@ -205,8 +205,8 @@
   }
 
   .profile-tag--high {
-    background-color: var(--accent-lightest, rgba(var(--accent-rgb), 0.15));
-    color: var(--accent-dark);
+    background-color: var(--accent);
+    color: var(--white);
   }
 
   .archetype-card__strengths {
