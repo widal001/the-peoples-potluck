@@ -13,4 +13,4 @@ export { ARCHETYPES, AXIS_GROUP_LABELS } from "./archetypes";
 export { SCENARIOS, SCENARIOS_BY_ARCHETYPE } from "./scenarios";
 
 // Question data
-export { QUESTIONS, DESIGN_MATRIX, QUESTION_PROMPTS } from "./questions";
+export { QUESTIONS, DESIGN_MATRIX, QUESTION_PROMPT } from "./questions";

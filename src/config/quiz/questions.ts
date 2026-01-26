@@ -39,25 +39,8 @@ export const DESIGN_MATRIX: ArchetypeId[][] = [
   ["HHLL", "HLLL", "LHHL", "LLLL"],
 ];
 
-// Question prompts that frame the choice
-export const QUESTION_PROMPTS: string[] = [
-  "Your community is organizing a response to increased enforcement. Which role calls to you?",
-  "A neighbor asks how they can help immigrant families. What do you suggest they try?",
-  "You have time to contribute this month. What feels most meaningful?",
-  "An organization is recruiting volunteers. Which opportunity interests you?",
-  "You're thinking about how to make a difference. What approach resonates?",
-  "A local group needs more people involved. What would you want to do?",
-  "You want to support immigrant communities. Which way feels right?",
-  "There's momentum building in your neighborhood. How do you want to join in?",
-  "You're deciding how to spend your activist energy. What draws you?",
-  "A friend invites you to get involved. Which option appeals to you?",
-  "You're looking for ways to contribute. What matches your style?",
-  "The community is mobilizing. Where do you see yourself?",
-  "You want to take action but aren't sure how. What feels authentic?",
-  "There are many ways to help. Which one speaks to you?",
-  "You're ready to do something. What kind of engagement fits?",
-  "It's time to step up. Which approach matches your strengths?",
-];
+// Single prompt for all questions - keeps focus on comparing the options
+export const QUESTION_PROMPT = "Which of these interventions sounds the most appetizing?";
 
 // Build questions with proper scenario rotation
 // Each archetype's scenarios alternate: A, B, A, B for appearances 1, 2, 3, 4
@@ -92,7 +75,7 @@ function buildQuestions(): QuizQuestion[] {
 
     return {
       id: index + 1,
-      prompt: QUESTION_PROMPTS[index],
+      prompt: QUESTION_PROMPT,
       scenarioIds,
     };
   });
