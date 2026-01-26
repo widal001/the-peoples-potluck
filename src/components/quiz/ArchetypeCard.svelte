@@ -109,7 +109,7 @@
 
   .archetype-card-link:hover .archetype-card {
     transform: translateY(-4px);
-    border-color: var(--accent-light);
+    border-color: var(--accent);
     box-shadow: var(--shadow-md);
   }
 

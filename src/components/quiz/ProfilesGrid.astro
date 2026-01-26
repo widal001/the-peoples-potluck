@@ -10,13 +10,17 @@ const allArchetypes = getAllArchetypes();
 const sortForGrid = (profiles: typeof allArchetypes) => {
   const order = [
     { zest: "high", heft: "high" }, // top-left: Bold + Hearty
-    { zest: "low", heft: "high" },  // top-right: Subtle + Hearty
-    { zest: "high", heft: "low" },  // bottom-left: Bold + Light
-    { zest: "low", heft: "low" },   // bottom-right: Subtle + Light
+    { zest: "low", heft: "high" }, // top-right: Subtle + Hearty
+    { zest: "high", heft: "low" }, // bottom-left: Bold + Light
+    { zest: "low", heft: "low" }, // bottom-right: Subtle + Light
   ];
   return order
-    .map((o) => profiles.find((p) => p.profile.zest === o.zest && p.profile.heft === o.heft))
-    .filter((p): p is typeof profiles[number] => p !== undefined);
+    .map((o) =>
+      profiles.find(
+        (p) => p.profile.zest === o.zest && p.profile.heft === o.heft,
+      ),
+    )
+    .filter((p): p is (typeof profiles)[number] => p !== undefined);
 };
 
 // Define quadrants: Heat × Sweet combinations
@@ -52,39 +56,35 @@ const quadrantData = quadrants.map((q) => ({
   ...q,
   profiles: sortForGrid(
     allArchetypes.filter(
-      (a) => a.profile.heat === q.heat && a.profile.sweet === q.sweet
-    )
+      (a) => a.profile.heat === q.heat && a.profile.sweet === q.sweet,
+    ),
   ),
 }));
 ---
 
 <div class="profiles-grid">
-  {quadrantData.map((quadrant) => (
-    <div class="profiles-grid__quadrant">
-      <h3 class="profiles-grid__title">
-        {quadrant.title}
-        <span class="profiles-grid__subtitle">
-          {quadrant.subtitle}
-        </span>
-      </h3>
-      <div class="profiles-grid__cards">
-        {quadrant.profiles.map((archetype) => (
-          <ArchetypeCard 
-            archetype={archetype} 
-            compact={true}
-            client:load
-          />
-        ))}
+  {
+    quadrantData.map((quadrant) => (
+      <div class="profiles-grid__quadrant">
+        <h3 class="profiles-grid__title">
+          {quadrant.title}
+          <span class="profiles-grid__subtitle">{quadrant.subtitle}</span>
+        </h3>
+        <div class="profiles-grid__cards">
+          {quadrant.profiles.map((archetype) => (
+            <ArchetypeCard archetype={archetype} compact={true} client:load />
+          ))}
+        </div>
       </div>
-    </div>
-  ))}
+    ))
+  }
 </div>
 
 <style>
   .profiles-grid {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-3xl);
+    gap: var(--spacing-xl);
   }
 
   .profiles-grid__quadrant {

@@ -251,6 +251,10 @@ h6 {
   width: var(--spacing-4xl);
 }
 
+.title-accent[data-align="center"] {
+  margin-inline: auto;
+}
+
 /* =======================================================
    LAYOUT PRIMITIVES
    =======================================================
