@@ -115,11 +115,6 @@
 
   .archetype-card--highlighted {
     border-color: var(--accent);
-    background: linear-gradient(
-      135deg,
-      var(--accent-lightest, rgba(var(--accent-rgb), 0.05)) 0%,
-      var(--background-default) 100%
-    );
   }
 
   .archetype-card-link--highlighted:hover .archetype-card {

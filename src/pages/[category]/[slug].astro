@@ -9,7 +9,7 @@ import Layout from "@/layouts/Layout.astro";
 import CategoryBadge from "@/components/potluck/CategoryBadge.astro";
 import TagPill from "@/components/potluck/TagPill.astro";
 import PotluckIcon from "@/components/potluck/PotluckIcon.astro";
-import FlavorProfile from "@/components/potluck/FlavorProfile.astro";
+import FlavorProfileCard from "@/components/potluck/FlavorProfileCard.astro";
 import LinkButton from "@/components/ui/LinkButton.astro";
 import SuggestedBites from "@/components/potluck/SuggestedBites.svelte";
 import { collectionEntryToItem } from "@/lib/filters";
@@ -31,7 +31,7 @@ export async function getStaticPaths() {
         params: { category, slug: item.slug },
         props: { item, category },
       }));
-    })
+    }),
   );
 
   return paths.flat();
@@ -96,7 +96,7 @@ const allBites = showSuggestedBites
         {
           item.data.flavor && (
             <div class="detail-flavor">
-              <FlavorProfile flavor={item.data.flavor} />
+              <FlavorProfileCard flavor={item.data.flavor} />
             </div>
           )
         }
@@ -181,13 +181,12 @@ const allBites = showSuggestedBites
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
   }
 
   .detail-flavor {
-    margin-top: var(--spacing-lg);
-    padding: var(--spacing-md);
-    background-color: var(--secondary-lightest);
-    border-radius: var(--radius-md);
+    max-width: 800px;
+    margin-inline: auto;
   }
 
   .detail-content {

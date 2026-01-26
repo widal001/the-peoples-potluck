@@ -1,0 +1,49 @@
+---
+/**
+ * Flavor profile card component for Astro pages
+ * Uses the shared FlavorScoreGrid component
+ */
+import type { FlavorProfile } from "@/lib/filters/types";
+import type { ArchetypeProfile } from "@/config/quiz/types";
+import FlavorScoreGrid from "@/components/shared/FlavorScoreGrid.svelte";
+
+interface Props {
+  /** Numeric flavor profile (1-5 scale) from collection items */
+  flavor?: FlavorProfile;
+  /** High/low archetype profile from quiz */
+  archetypeProfile?: ArchetypeProfile;
+  /** Optional title */
+  title?: string;
+}
+
+const { 
+  flavor, 
+  archetypeProfile, 
+  title = "Flavor Profile",
+} = Astro.props;
+
+// Convert archetype profile (high/low) to numeric (1-5)
+function archetypeToNumeric(value: "high" | "low"): number {
+  return value === "high" ? 4 : 2;
+}
+
+// Get scores from either flavor or archetype profile
+const heat = flavor?.heat ?? (archetypeProfile ? archetypeToNumeric(archetypeProfile.heat) : 3);
+const sweet = flavor?.sweet ?? (archetypeProfile ? archetypeToNumeric(archetypeProfile.sweet) : 3);
+const zest = flavor?.zest ?? (archetypeProfile ? archetypeToNumeric(archetypeProfile.zest) : 3);
+const heft = flavor?.heft ?? (archetypeProfile ? archetypeToNumeric(archetypeProfile.heft) : 3);
+
+// Check if there's any data to display
+const hasData = flavor || archetypeProfile;
+---
+
+{hasData && (
+  <FlavorScoreGrid
+    {title}
+    {heat}
+    {sweet}
+    {zest}
+    {heft}
+    client:load
+  />
+)}
