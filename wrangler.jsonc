@@ -1,16 +1,48 @@
 {
-  "name": "resistance-potluck",
+  "name": "peoples-potluck",
   "compatibility_date": "2025-08-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./dist/_worker.js/index.js",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"
+  },
+
+  // D1 Database binding
+  // To create the databases, run:
+  //   wrangler d1 create peoples-potluck-db
+  //   wrangler d1 create peoples-potluck-db-preview
+  // Then update the database_id values below with the returned IDs
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "peoples-potluck-db",
+      "database_id": "<your-prod-database-id>",
+      "migrations_dir": "src/lib/db/migrations"
+    }
+  ],
+
+  // Environment-specific configurations
+  "env": {
+    "preview": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "peoples-potluck-db-preview",
+          "database_id": "<your-preview-database-id>",
+          "migrations_dir": "src/lib/db/migrations"
+        }
+      ]
+    }
   }
+
   // Environment variables setup:
   // - Local dev: create .dev.vars file with:
   //     DRY_RUN=true (or false to test Slack)
   //     SLACK_WEBHOOK_URL=https://hooks.slack.com/...
+  //     CLOUDFLARE_ACCOUNT_ID=<your-account-id>
+  //     CLOUDFLARE_API_TOKEN=<your-api-token>
+  //     D1_DATABASE_ID=<your-prod-database-id>
   // - Production: Set via GitHub Actions (see cd-publish.yml)
   //
   // Rate limiting: Configure via Cloudflare Dashboard > Security > WAF > Rate limiting rules

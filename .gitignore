@@ -19,6 +19,9 @@ pnpm-debug.log*
 .env.production
 .dev.vars
 
+# generated files
+scripts/seed-data.sql
+
 # macOS-specific files
 .DS_Store
 
