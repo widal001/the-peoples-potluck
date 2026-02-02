@@ -2,18 +2,24 @@
 /**
  * Dynamic collection index page
  * Handles: /settings/, /dishes/, /desserts/, /drinks/, /bites/
+ *
+ * Static generation by default. To enable SSR for dynamic content:
+ * export const prerender = false;
  */
-import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import ActiveFilters from "@/components/filters/ActiveFilters.svelte";
 import FilterPanel from "@/components/filters/FilterPanel.svelte";
 import FilterableGrid from "@/components/filters/FilterableGrid.svelte";
 import SuggestedBites from "@/components/potluck/SuggestedBites.svelte";
-import { prepareCollectionItems, collectionEntryToItem } from "@/lib/filters";
 import { COLLECTION_KEYS, COLLECTIONS } from "@/config/collections";
 import type { PotluckCategory } from "@/config/collections";
+import {
+  getCollectionItems,
+  toPotluckItem,
+} from "@/lib/data";
 
-export async function getStaticPaths() {
+// Generate static paths for all collections
+export function getStaticPaths() {
   return COLLECTION_KEYS.map((key) => ({
     params: { category: key },
   }));
@@ -22,14 +28,16 @@ export async function getStaticPaths() {
 const { category } = Astro.params as { category: PotluckCategory };
 const config = COLLECTIONS[category];
 
-// Fetch items for this collection
-const items = prepareCollectionItems(await getCollection(category));
+// Fetch items for this collection (D1 if available, content collection fallback)
+const collectionItems = await getCollectionItems(Astro, category);
+const items = collectionItems.map(toPotluckItem);
 
 // Fetch bites for suggested section (only for non-bites collections)
 const showSuggestedBites = category !== "bites";
-const bites = showSuggestedBites
-  ? (await getCollection("bites")).map(collectionEntryToItem)
+const bitesItems = showSuggestedBites
+  ? await getCollectionItems(Astro, "bites")
   : [];
+const bites = bitesItems.map(toPotluckItem);
 
 // Empty message uses collection label
 const emptyMessage = `No ${config.label.toLowerCase()} match your filters. Try adjusting the flavor profile or reset filters.`;

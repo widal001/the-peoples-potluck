@@ -2,9 +2,11 @@
 /**
  * Dynamic collection detail page
  * Handles: /settings/[slug], /dishes/[slug], /desserts/[slug], /drinks/[slug], /bites/[slug]
+ *
+ * Static generation by default. To enable SSR for dynamic content:
+ * export const prerender = false;
  */
-import { getCollection } from "astro:content";
-import type { CollectionEntry } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import CategoryBadge from "@/components/potluck/CategoryBadge.astro";
 import TagPill from "@/components/potluck/TagPill.astro";
@@ -12,54 +14,63 @@ import PotluckIcon from "@/components/potluck/PotluckIcon.astro";
 import FlavorProfileCard from "@/components/potluck/FlavorProfileCard.astro";
 import LinkButton from "@/components/ui/LinkButton.astro";
 import SuggestedBites from "@/components/potluck/SuggestedBites.svelte";
-import { collectionEntryToItem } from "@/lib/filters";
 import {
   COLLECTION_KEYS,
   COLLECTIONS,
   type PotluckCategory,
 } from "@/config/collections";
+import {
+  getItemBySlug,
+  getCollectionItems,
+  toPotluckItem,
+  toFlavorProfile,
+} from "@/lib/data";
 
-// Type for any potluck collection entry
-type PotluckEntry = CollectionEntry<PotluckCategory>;
-
+// Generate static paths for all items in all collections
 export async function getStaticPaths() {
-  // Generate paths for all items in all collections
   const paths = await Promise.all(
     COLLECTION_KEYS.map(async (category) => {
       const items = await getCollection(category);
       return items.map((item) => ({
         params: { category, slug: item.slug },
-        props: { item, category },
       }));
     }),
   );
-
   return paths.flat();
 }
 
-interface Props {
-  item: PotluckEntry;
-  category: PotluckCategory;
+const { category, slug } = Astro.params as { category: PotluckCategory; slug: string };
+const config = COLLECTIONS[category];
+
+// Fetch the item (D1 if available, content collection fallback)
+const item = await getItemBySlug(Astro, category, slug);
+
+// With getStaticPaths, the item should always exist
+if (!item) {
+  throw new Error(`Item not found: ${category}/${slug}`);
 }
 
-const { item, category } = Astro.props;
-const config = COLLECTIONS[category];
-const { Content } = await item.render();
+// For rendering MDX content, we need the content collection entry
+const contentEntry = await getEntry(category, slug);
 
 // Get bites for suggested section (only for non-bites collections)
 const showSuggestedBites = category !== "bites";
-const allBites = showSuggestedBites
-  ? (await getCollection("bites")).map(collectionEntryToItem)
+const bitesItems = showSuggestedBites
+  ? await getCollectionItems(Astro, "bites")
   : [];
+const allBites = bitesItems.map(toPotluckItem);
+
+// Render MDX content if available from content collection
+const Content = contentEntry ? (await contentEntry.render()).Content : null;
 ---
 
-<Layout title={item.data.title} description={item.data.description}>
+<Layout title={item.title} description={item.description}>
   <article class="section-padding">
     <div class="container-content">
       <nav class="breadcrumb">
         <a href={config.path} class="breadcrumb__link">{config.label}</a>
         <span class="breadcrumb__separator" aria-hidden="true">/</span>
-        <span class="breadcrumb__current">{item.data.title}</span>
+        <span class="breadcrumb__current">{item.title}</span>
       </nav>
 
       <header class="detail-header">
@@ -67,26 +78,26 @@ const allBites = showSuggestedBites
 
         <div class="detail-header__main">
           {
-            item.data.icon && (
+            item.icon && (
               <PotluckIcon
-                svg={item.data.icon.svg}
-                primaryColor={item.data.icon.primaryColor}
-                secondaryColor={item.data.icon.secondaryColor}
+                svg={item.icon.svg}
+                primaryColor={item.icon.primaryColor}
+                secondaryColor={item.icon.secondaryColor}
                 size="lg"
               />
             )
           }
-          <h1 class="text-heading-1">{item.data.title}</h1>
+          <h1 class="text-heading-1">{item.title}</h1>
         </div>
 
         <p class="text-body-large detail-description">
-          {item.data.description}
+          {item.description}
         </p>
 
         {
-          item.data.tags && item.data.tags.length > 0 && (
+          item.tags && item.tags.length > 0 && (
             <div class="detail-tags">
-              {item.data.tags.map((tag) => (
+              {item.tags.map((tag) => (
                 <TagPill tag={tag} />
               ))}
             </div>
@@ -94,27 +105,31 @@ const allBites = showSuggestedBites
         }
 
         {
-          item.data.flavor && (
+          (item.flavor.heat || item.flavor.sweet || item.flavor.zest || item.flavor.heft) && (
             <div class="detail-flavor">
-              <FlavorProfileCard flavor={item.data.flavor} />
+              <FlavorProfileCard flavor={toFlavorProfile(item.flavor)} />
             </div>
           )
         }
       </header>
 
-      <div class="detail-content prose">
-        <Content />
-      </div>
+      {
+        Content && (
+          <div class="detail-content prose">
+            <Content />
+          </div>
+        )
+      }
 
       <footer class="detail-footer">
         {
-          item.data.sourceUrl && (
-            <LinkButton href={item.data.sourceUrl} text="Learn more" />
+          item.sourceUrl && (
+            <LinkButton href={item.sourceUrl} text="Learn more" />
           )
         }
         {
-          item.data.source && !item.data.sourceUrl && (
-            <p class="detail-source">Source: {item.data.source}</p>
+          item.source && !item.sourceUrl && (
+            <p class="detail-source">Source: {item.source}</p>
           )
         }
       </footer>

@@ -4,4 +4,4 @@
  */
 
 export { ItemsService, createItemsService } from "./items";
-export type { EnrichedItem, FlavorFilter } from "./items";
+export type { EnrichedItem, FlavorProfile, FlavorFilter } from "./items";

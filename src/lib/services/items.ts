@@ -14,22 +14,47 @@ import {
   isValidStatusId,
 } from "../../config/statuses";
 import { getCategoryConfig } from "../../config/categories";
-import {
-  enrichFlavorProfile,
-  type EnrichedFlavorProfile,
-  type FlavorProfile,
-} from "../../config/flavors";
+
+/**
+ * Flavor profile with nullable values (matches DB schema)
+ */
+export interface FlavorProfile {
+  heat: number | null;
+  sweet: number | null;
+  zest: number | null;
+  heft: number | null;
+}
 
 /**
  * Enriched item type with config metadata
+ * This is the canonical item type used throughout the app
  */
-export interface EnrichedItem extends Omit<schema.Item, "icon"> {
+export interface EnrichedItem {
+  // Core fields
+  id: string;
+  slug: string;
+  collectionId: PotluckCategory;
+  title: string;
+  description: string;
+  content?: string;
+  categoryId: string | null;
+  
+  // Display fields
+  tags: string[];
+  icon?: {
+    svg: string;
+    primaryColor: string;
+    secondaryColor: string;
+  };
+  source?: string;
+  sourceUrl?: string;
+  addedDate?: string;
+  flavor: FlavorProfile;
+  
+  // Enriched metadata from config
   collection: (typeof COLLECTIONS)[PotluckCategory];
   status: (typeof STATUSES)[StatusId];
-  category: { id: string; label: string; description?: string } | null;
-  tags: schema.Tag[];
-  flavor: EnrichedFlavorProfile;
-  icon: schema.Item["icon"];
+  category: { id: string; label: string } | null;
 }
 
 /**
@@ -64,22 +89,30 @@ export class ItemsService {
       ? item.statusId
       : "published";
 
-    const flavorProfile: FlavorProfile = {
-      heat: item.flavorHeat,
-      sweet: item.flavorSweet,
-      zest: item.flavorZest,
-      heft: item.flavorHeft,
-    };
-
     return {
-      ...item,
+      id: item.id,
+      slug: item.slug,
+      collectionId,
+      title: item.title,
+      description: item.description,
+      content: item.content || undefined,
+      categoryId: item.categoryId,
+      tags: itemTagsList.map((t) => t.name),
+      icon: item.icon || undefined,
+      source: item.source || undefined,
+      sourceUrl: item.sourceUrl || undefined,
+      addedDate: item.addedDate || undefined,
+      flavor: {
+        heat: item.flavorHeat,
+        sweet: item.flavorSweet,
+        zest: item.flavorZest,
+        heft: item.flavorHeft,
+      },
       collection: COLLECTIONS[collectionId] || COLLECTIONS.settings,
       status: STATUSES[statusId],
       category: item.categoryId
         ? getCategoryConfig(collectionId, item.categoryId) || null
         : null,
-      tags: itemTagsList,
-      flavor: enrichFlavorProfile(flavorProfile),
     };
   }
 

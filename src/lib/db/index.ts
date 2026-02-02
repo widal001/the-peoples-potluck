@@ -15,4 +15,5 @@ export {
   getDatabaseFromAstro,
   getItemsServiceFromAstro,
   isDatabaseAvailable,
+  type AstroContext,
 } from "./astro-client";

@@ -123,8 +123,8 @@ describe("ItemsService", () => {
       const item = dishes.find((d) => d.slug === "test-nonprofit");
 
       expect(item?.tags).toHaveLength(2);
-      expect(item?.tags.map((t) => t.slug)).toContain("immigration");
-      expect(item?.tags.map((t) => t.slug)).toContain("legal-aid");
+      expect(item?.tags).toContain("Immigration");
+      expect(item?.tags).toContain("Legal Aid");
     });
 
     it("should not include pending items", async () => {
@@ -183,14 +183,13 @@ describe("ItemsService", () => {
       expect(filtered[0].slug).toBe("test-nonprofit");
     });
 
-    it("should enrich flavor profile with axis metadata", async () => {
+    it("should include flavor profile values", async () => {
       const items = await service.getByFlavorRange({ heatMin: 3 });
       const item = items[0];
 
-      expect(item.flavor.heat.value).toBe(item.flavorHeat);
-      expect(item.flavor.heat.axis.label).toBe("Heat");
-      expect(item.flavor.heat.axis.lowLabel).toBe("Mild");
-      expect(item.flavor.heat.axis.highLabel).toBe("Spicy");
+      // Flavor values should be simple numbers (or null)
+      expect(item.flavor.heat).toBeGreaterThanOrEqual(3);
+      expect(typeof item.flavor.heat).toBe("number");
     });
   });
 
