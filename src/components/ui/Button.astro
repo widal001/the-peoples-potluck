@@ -4,14 +4,23 @@ interface Props {
   id?: string;
   type?: "button" | "submit" | "reset";
   maxWidth?: "3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
+  variant?: "primary" | "linocut";
 }
 
-const { class: className = "", id, type = "button", maxWidth } = Astro.props;
+const {
+  class: className = "",
+  id,
+  type = "button",
+  maxWidth,
+  variant = "primary",
+} = Astro.props;
+
+const baseClass = variant === "linocut" ? "button-linocut" : "button-primary";
 ---
 
 <button
   type={type}
-  class={`button-primary ${className}`}
+  class={`${baseClass} ${className}`}
   max-width={maxWidth}
   id={id}
 >

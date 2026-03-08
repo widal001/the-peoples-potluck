@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Main border path with organic wobble - stroked, not filled -->
+  <path 
+    d="M5,5.2 Q6.5,4.4 10,5.1 L90,4.6 Q93.2,5.3 95,5.1
+       Q95.8,6.2 95.4,10 L95.8,90 Q95.1,93.6 95,94.8
+       Q93.8,95.6 90,95.2 L10,95.4 Q6.3,94.8 5,95
+       Q4.2,93.8 4.6,90 L4.2,10 Q4.8,6.4 5,5.2 Z"
+    stroke="rgb(8,9,9)"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  
+  <!-- Tiny white flecks on the border stroke (ink gaps) -->
+  <!-- Top edge -->
+  <ellipse cx="15" cy="4.9" rx="0.3" ry="0.15" fill="white"/>
+  <ellipse cx="28" cy="4.7" rx="0.25" ry="0.12" fill="white"/>
+  <ellipse cx="45" cy="5.1" rx="0.2" ry="0.1" fill="white"/>
+  <ellipse cx="62" cy="4.8" rx="0.28" ry="0.14" fill="white"/>
+  <ellipse cx="78" cy="5" rx="0.22" ry="0.11" fill="white"/>
+  <!-- Right edge -->
+  <ellipse cx="95.1" cy="18" rx="0.12" ry="0.25" fill="white"/>
+  <ellipse cx="95.3" cy="38" rx="0.1" ry="0.2" fill="white"/>
+  <ellipse cx="94.9" cy="55" rx="0.14" ry="0.28" fill="white"/>
+  <ellipse cx="95.2" cy="75" rx="0.11" ry="0.22" fill="white"/>
+  <!-- Bottom edge -->
+  <ellipse cx="85" cy="95.1" rx="0.25" ry="0.12" fill="white"/>
+  <ellipse cx="68" cy="94.8" rx="0.2" ry="0.1" fill="white"/>
+  <ellipse cx="50" cy="95.2" rx="0.28" ry="0.14" fill="white"/>
+  <ellipse cx="32" cy="94.9" rx="0.22" ry="0.11" fill="white"/>
+  <ellipse cx="15" cy="95" rx="0.25" ry="0.12" fill="white"/>
+  <!-- Left edge -->
+  <ellipse cx="4.9" cy="82" rx="0.12" ry="0.25" fill="white"/>
+  <ellipse cx="5.1" cy="62" rx="0.1" ry="0.2" fill="white"/>
+  <ellipse cx="4.8" cy="42" rx="0.14" ry="0.28" fill="white"/>
+  <ellipse cx="5" cy="22" rx="0.11" ry="0.22" fill="white"/>
+  
+  <!-- Scattered stray marks outside border -->
+  <path fill="rgb(8,9,9)" d="M 12,1.8 L 12.15,1.95 L 12.1,2.05 L 11.95,1.9 Z"/>
+  <path fill="rgb(8,9,9)" d="M 45,1.5 L 45.12,1.65 L 45.08,1.75 L 44.95,1.6 Z"/>
+  <path fill="rgb(8,9,9)" d="M 78,1.7 L 78.18,1.88 L 78.12,1.98 L 77.95,1.8 Z"/>
+  <path fill="rgb(8,9,9)" d="M 98.2,28 L 98.35,28.18 L 98.28,28.28 L 98.12,28.1 Z"/>
+  <path fill="rgb(8,9,9)" d="M 98.4,65 L 98.55,65.15 L 98.48,65.25 L 98.32,65.1 Z"/>
+  <path fill="rgb(8,9,9)" d="M 85,98.3 L 85.15,98.45 L 85.08,98.55 L 84.92,98.4 Z"/>
+  <path fill="rgb(8,9,9)" d="M 35,98.5 L 35.12,98.62 L 35.05,98.72 L 34.92,98.58 Z"/>
+  <path fill="rgb(8,9,9)" d="M 1.7,72 L 1.85,72.18 L 1.78,72.28 L 1.62,72.1 Z"/>
+  <path fill="rgb(8,9,9)" d="M 1.5,35 L 1.65,35.15 L 1.58,35.25 L 1.42,35.1 Z"/>
+  
+  <!-- Tiny ink spatter dots -->
+  <circle cx="22" cy="1.3" r="0.08" fill="rgb(8,9,9)"/>
+  <circle cx="58" cy="1.5" r="0.06" fill="rgb(8,9,9)"/>
+  <circle cx="98.7" cy="48" r="0.07" fill="rgb(8,9,9)"/>
+  <circle cx="55" cy="98.7" r="0.08" fill="rgb(8,9,9)"/>
+  <circle cx="1.3" cy="58" r="0.07" fill="rgb(8,9,9)"/>
+</svg>

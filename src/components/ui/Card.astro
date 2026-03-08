@@ -2,12 +2,15 @@
 interface Props {
   title?: string;
   class?: string;
+  variant?: "default" | "linocut";
 }
 
-const { title, class: className = "" } = Astro.props;
+const { title, class: className = "", variant = "default" } = Astro.props;
+
+const baseClass = variant === "linocut" ? "card-linocut" : "card";
 ---
 
-<div class={`card ${className}`}>
+<div class={`${baseClass} ${className}`}>
   {
     title && (
       <h2 class="text-heading-3" style="margin-bottom: var(--spacing-md);">

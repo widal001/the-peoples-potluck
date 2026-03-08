@@ -1,0 +1,52 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Button from "@/components/ui/Button.astro";
+import Card from "@/components/ui/Card.astro";
+---
+
+<Layout title="Linocut Border Test" description="POC test page for organic SVG borders using CSS border-image">
+  <main class="container-content section-padding">
+    <h1 class="text-heading-1">Linocut Border POC</h1>
+    <p class="text-body" style="margin-top: var(--spacing-md);">
+      Testing organic SVG borders using CSS border-image with 9-slice scaling.
+    </p>
+
+    <section style="margin-top: var(--spacing-2xl);">
+      <h2 class="text-heading-2">Buttons</h2>
+      <div
+        style="display: flex; gap: var(--spacing-lg); margin-top: var(--spacing-lg); flex-wrap: wrap;"
+      >
+        <Button>Primary (default)</Button>
+        <Button variant="linocut">Linocut variant</Button>
+      </div>
+    </section>
+
+    <section style="margin-top: var(--spacing-2xl);">
+      <h2 class="text-heading-2">Cards</h2>
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-lg); margin-top: var(--spacing-lg);"
+      >
+        <Card title="Default Card">
+          <p class="text-body">Standard card with the existing border style.</p>
+        </Card>
+        <Card title="Linocut Card" variant="linocut">
+          <p class="text-body">Card with organic SVG border-image.</p>
+        </Card>
+      </div>
+    </section>
+
+    <section style="margin-top: var(--spacing-2xl);">
+      <h2 class="text-heading-2">Validation Checklist</h2>
+      <ul
+        class="text-body"
+        style="margin-top: var(--spacing-md); padding-left: var(--spacing-lg);"
+      >
+        <li>Border visible on button and card</li>
+        <li>Focus ring (Tab to button) is separate and clear</li>
+        <li>Hover state works on button</li>
+        <li>Fallback border if SVG fails (disable network, check)</li>
+        <li>Windows High Contrast Mode shows solid border</li>
+      </ul>
+    </section>
+  </main>
+</Layout>

@@ -124,6 +124,12 @@ h6 {
   --border-width-lg: 3px;
   --border-width: var(--border-width-xs); /* Default */
 
+  /* Linocut border tokens */
+  --border-linocut-source: url('/assets/borders/linocut-frame.svg');
+  --border-linocut-slice: 10;
+  --border-linocut-width-sm: 10px;
+  --border-linocut-width-md: 14px;
+
   /* Shadows */
   --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-md: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -362,6 +368,68 @@ h6 {
 
 .card-padded {
   padding: var(--spacing-xl);
+}
+
+/* =======================================================
+   LINOCUT BORDER VARIANTS (POC)
+   ======================================================= */
+
+.button-linocut {
+  background-color: var(--accent);
+  color: var(--white);
+  cursor: pointer;
+  display: inline-block;
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-md) var(--spacing-2xl);
+  text-decoration: none;
+  transition: background-color var(--transition-normal);
+
+  /* Fallback border */
+  border: 2px solid var(--primary-dark);
+
+  /* Linocut border-image */
+  border-image-source: var(--border-linocut-source);
+  border-image-slice: var(--border-linocut-slice);
+  border-image-width: var(--border-linocut-width-sm);
+  border-image-repeat: stretch;
+}
+
+.button-linocut:hover {
+  background-color: var(--accent-mid);
+}
+
+.button-linocut:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.card-linocut {
+  background-color: var(--background-default);
+  color: var(--text-color-default);
+  padding: var(--spacing-lg);
+
+  /* Fallback border */
+  border: 2px solid var(--primary-dark);
+
+  /* Linocut border-image */
+  border-image-source: var(--border-linocut-source);
+  border-image-slice: var(--border-linocut-slice);
+  border-image-width: var(--border-linocut-width-md);
+  border-image-repeat: stretch;
+}
+
+/* Forced colors / high contrast fallback */
+@media (forced-colors: active) {
+  .button-linocut,
+  .card-linocut {
+    border-image: none;
+    border: 2px solid CanvasText;
+  }
+
+  .button-linocut:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
 }
 
 /* =======================================================
